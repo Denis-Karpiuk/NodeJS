@@ -11,5 +11,5 @@ export const setupApp = (app: Express) => {
 	})
 
 	app.use('/api/videos', videoRouter)
-	app.use('/api/videos/testing', testingRouter)
+	app.use('/api/testing', testingRouter)
 }
