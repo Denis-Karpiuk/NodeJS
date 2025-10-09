@@ -5,7 +5,7 @@ export type InputVideoDto = {
 	title: string
 	author: string
 	canBeDownloaded: boolean
-	minAgeRestriction: number
+	minAgeRestriction: null | number
 	createdAt: string // ISO date string
 	publicationDate: string // ISO date string
 	availableResolutions: ResolutionVideo[]
