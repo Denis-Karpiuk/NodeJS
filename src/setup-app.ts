@@ -1,4 +1,6 @@
 import express, { Express } from 'express'
+import { videoRouter } from './videos/router/video.router'
+import { testingRouter } from './testRouter/testRouter'
 
 export const setupApp = (app: Express) => {
 	app.use(express.json()) // middleware для парсинга JSON в теле запроса
@@ -7,5 +9,7 @@ export const setupApp = (app: Express) => {
 	app.get('/', (req, res) => {
 		res.status(200).send('Hello world!')
 	})
-	return app
+
+	app.use('/api/videos', videoRouter)
+	app.use('/api/videos/testing', testingRouter)
 }
