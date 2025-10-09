@@ -35,9 +35,13 @@ videoRouter
 			return
 		}
 
-		const defaultDate = new Date(
-			Date.now() + 24 * 60 * 60 * 1000
-		).toISOString()
+		const createdAt = new Date()
+		const publicationDate = new Date(
+			createdAt.getTime() + 24 * 60 * 60 * 1000
+		)
+
+		const defaultDate = createdAt.toISOString()
+		const publicDate = publicationDate.toISOString()
 
 		const newVideo: InputVideoDto = {
 			id: db.length ? db[db.length - 1].id + 1 : 1,
@@ -46,7 +50,7 @@ videoRouter
 			canBeDownloaded: false,
 			minAgeRestriction: null,
 			createdAt: defaultDate,
-			publicationDate: defaultDate,
+			publicationDate: publicDate,
 			availableResolutions: req.body.availableResolutions,
 		}
 
