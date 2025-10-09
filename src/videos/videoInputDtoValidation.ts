@@ -66,8 +66,7 @@ export const videoInputDtoValidation = (
 
 		if (
 			data.minAgeRestriction !== null &&
-			(!data.minAgeRestriction ||
-				typeof data.minAgeRestriction !== 'number' ||
+			(typeof data.minAgeRestriction !== 'number' ||
 				data.minAgeRestriction < 1 ||
 				data.minAgeRestriction > 18)
 		) {

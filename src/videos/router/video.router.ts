@@ -44,7 +44,7 @@ videoRouter
 			title: req.body.title,
 			author: req.body.author,
 			canBeDownloaded: false,
-			minAgeRestriction: 18,
+			minAgeRestriction: null,
 			createdAt: defaultDate,
 			publicationDate: defaultDate,
 			availableResolutions: req.body.availableResolutions,
