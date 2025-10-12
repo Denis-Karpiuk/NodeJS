@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { HttpStatus } from '../../core/types/http-statuses'
 import { postsRepository } from '../repository/posts.repository'
+import { adminGuardMiddleware } from '../../core/middlewares/adminGuardMiddleware.middleware'
 
 export const postsRouter = Router({})
 	.get('', (_, res) => {
@@ -16,7 +17,7 @@ export const postsRouter = Router({})
 		res.status(HttpStatus.Ok).send(post)
 	})
 
-	.post('', (req, res) => {
+	.post('', adminGuardMiddleware, (req, res) => {
 		const result = postsRepository.addPost(req.body)
 
 		if (!result) {
@@ -26,7 +27,7 @@ export const postsRouter = Router({})
 		res.status(HttpStatus.Created).send(result)
 	})
 
-	.put('/:id', (req, res) => {
+	.put('/:id', adminGuardMiddleware, (req, res) => {
 		const updateResult = postsRepository.updatePost({
 			...req.body,
 			id: +req.params.id,
@@ -41,7 +42,7 @@ export const postsRouter = Router({})
 		)
 	})
 
-	.delete('/:id', (req, res) => {
+	.delete('/:id', adminGuardMiddleware, (req, res) => {
 		const result = postsRepository.deletePostById(+req.params.id)
 
 		if (!result) {
