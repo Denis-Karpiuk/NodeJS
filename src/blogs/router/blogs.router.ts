@@ -8,13 +8,13 @@ export const blogsRouter = Router({})
 	})
 
 	.get('/:id', (req, res) => {
-		const blog = blogsRepository.getBlogById(+req.params.id)
+		const blog = blogsRepository.getBlogById(req.params.id)
 		if (!blog) {
 			res.status(HttpStatus.NotFound).send('Blog not found')
 		}
 
 		res.status(HttpStatus.Ok).send(
-			blogsRepository.getBlogById(+req.params.id)
+			blogsRepository.getBlogById(req.params.id)
 		)
 	})
 
@@ -40,7 +40,7 @@ export const blogsRouter = Router({})
 	})
 
 	.delete('/:id', (req, res) => {
-		const result = blogsRepository.deleteBlogById(+req.params.id)
+		const result = blogsRepository.deleteBlogById(req.params.id)
 
 		if (!result) {
 			res.status(HttpStatus.NotFound).send('Blog not found')
