@@ -30,7 +30,7 @@ export const postsRepository = {
 
 		postsDB.push({ ...post, blogName })
 
-		return blog
+		return post
 	},
 
 	updatePost({ id, ...body }: newPostBodyType & { id: string }) {
