@@ -9,7 +9,7 @@ export const postBodyValidator = [
 		.isString()
 		.withMessage('Поле title должно быть строкой')
 
-		.isLength({ max: 30 })
+		.isLength({ min: 1, max: 30 })
 		.withMessage('Максимальная длина title — 30 символов'),
 
 	body('shortDescription')
@@ -31,7 +31,7 @@ export const postBodyValidator = [
 		.isString()
 		.withMessage('Поле content должно быть строкой')
 
-		.isLength({ max: 1000 })
+		.isLength({ min: 1, max: 1000 })
 		.withMessage('Максимальная длина content — 1000 символов'),
 
 	body('blogId')
