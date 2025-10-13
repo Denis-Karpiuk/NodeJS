@@ -13,7 +13,7 @@ export const postsRepository = {
 	addPost(body: newPostBodyType) {
 		const lastBlogId = postsDB[postsDB.length - 1]?.id ?? 0
 
-		const blog = blogsDB.find(b => b.id === body.blogId)
+		const blog = blogsDB.find(b => b.id === Number(body.blogId))
 
 		if (!blog) {
 			return null
@@ -32,13 +32,15 @@ export const postsRepository = {
 	},
 
 	updatePost({ id, ...body }: newPostBodyType & { id: number }) {
-		const updatedBlogIndex = postsDB.findIndex(b => b.id === id)
+		const updatedBlogIndex = postsDB.findIndex(
+			b => Number(b.id) === Number(id)
+		)
 
 		if (updatedBlogIndex === -1) {
 			return null
 		}
 
-		const blog = blogsDB.find(b => b.id === body.blogId)
+		const blog = blogsDB.find(b => Number(b.id) === Number(body.blogId))
 
 		if (!blog) {
 			return null

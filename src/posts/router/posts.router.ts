@@ -1,7 +1,10 @@
-import { Router } from 'express'
+import { Router, Response, Request } from 'express'
 import { HttpStatus } from '../../core/types/http-statuses'
 import { postsRepository } from '../repository/posts.repository'
 import { adminGuardMiddleware } from '../../core/middlewares/adminGuardMiddleware.middleware'
+import { postBodyValidator } from '../validation'
+import { validation } from '../../core/middlewares/validatation.middleware'
+import { idParamsValidator } from '../../core/middlewares/requiredId.middleWare'
 
 export const postsRouter = Router({})
 	.get('', (_, res) => {
@@ -17,39 +20,59 @@ export const postsRouter = Router({})
 		res.status(HttpStatus.Ok).send(post)
 	})
 
-	.post('', adminGuardMiddleware, (req, res) => {
-		const result = postsRepository.addPost(req.body)
+	.post(
+		'',
+		adminGuardMiddleware,
+		postBodyValidator,
+		validation,
+		(req: Request, res: Response) => {
+			const result = postsRepository.addPost(req.body)
 
-		if (!result) {
-			res.status(HttpStatus.NotFound).send('Blog not found')
+			if (!result) {
+				res.status(HttpStatus.NotFound).send('Blog not found')
+			}
+
+			res.status(HttpStatus.Created).send(result)
 		}
+	)
 
-		res.status(HttpStatus.Created).send(result)
-	})
+	.put(
+		'/:id',
+		adminGuardMiddleware,
+		idParamsValidator,
+		postBodyValidator,
+		validation,
+		(req: Request, res: Response) => {
+			const updateResult = postsRepository.updatePost({
+				...req.body,
+				id: +req.params.id,
+			})
 
-	.put('/:id', adminGuardMiddleware, (req, res) => {
-		const updateResult = postsRepository.updatePost({
-			...req.body,
-			id: +req.params.id,
-		})
+			if (!updateResult) {
+				res.status(HttpStatus.NotFound).send('Post not found')
+			}
 
-		if (!updateResult) {
-			res.status(HttpStatus.NotFound).send('Post not found')
+			res.status(HttpStatus.NoContent).send(
+				`Post ${req.params.id} was updated successfully`
+			)
 		}
+	)
 
-		res.status(HttpStatus.NoContent).send(
-			`Post ${req.params.id} was updated successfully`
-		)
-	})
+	.delete(
+		'/:id',
+		adminGuardMiddleware,
+		idParamsValidator,
+		postBodyValidator,
+		validation,
+		(req: Request, res: Response) => {
+			const result = postsRepository.deletePostById(+req.params.id)
 
-	.delete('/:id', adminGuardMiddleware, (req, res) => {
-		const result = postsRepository.deletePostById(+req.params.id)
+			if (!result) {
+				res.status(HttpStatus.NotFound).send('Post not found')
+			}
 
-		if (!result) {
-			res.status(HttpStatus.NotFound).send('Post not found')
+			res.status(HttpStatus.NoContent).send(
+				`Post ${+req.params.id} was deleted`
+			)
 		}
-
-		res.status(HttpStatus.NoContent).send(
-			`Post ${+req.params.id} was deleted`
-		)
-	})
+	)

@@ -37,8 +37,8 @@ export const blogsRouter = Router({})
 
 	.put(
 		'/:id',
-		idParamsValidator,
 		adminGuardMiddleware,
+		idParamsValidator,
 		blogBodyValidator,
 		validation,
 		(req: Request, res: Response) => {
