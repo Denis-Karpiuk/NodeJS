@@ -62,7 +62,6 @@ export const postsRouter = Router({})
 		'/:id',
 		adminGuardMiddleware,
 		idParamsValidator,
-		postBodyValidator,
 		validation,
 		(req: Request, res: Response) => {
 			const result = postsRepository.deletePostById(req.params.id)
