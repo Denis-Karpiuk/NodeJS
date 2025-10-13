@@ -1,5 +1,5 @@
 export type InputPostDto = {
-	id: number
+	id: string
 	title: string
 	shortDescription: string
 	content: string
