@@ -43,7 +43,7 @@ export const blogsRouter = Router({})
 		(req: Request, res: Response) => {
 			const updateResult = blogsRepository.updateBlog({
 				...req.body,
-				id: +req.params.id,
+				id: req.params.id,
 			})
 
 			if (!updateResult) {
