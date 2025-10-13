@@ -2,6 +2,7 @@ import { body } from 'express-validator'
 
 export const postBodyValidator = [
 	body('title')
+		.trim()
 		.exists()
 		.withMessage('Поле title обязательно')
 
@@ -12,6 +13,7 @@ export const postBodyValidator = [
 		.withMessage('Максимальная длина title — 30 символов'),
 
 	body('shortDescription')
+		.trim()
 		.exists()
 		.withMessage('Поле shortDescription обязательно')
 
@@ -22,6 +24,7 @@ export const postBodyValidator = [
 		.withMessage('Максимальная длина shortDescription — 100 символов'),
 
 	body('content')
+		.trim()
 		.exists()
 		.withMessage('Поле content обязательно')
 
@@ -32,6 +35,7 @@ export const postBodyValidator = [
 		.withMessage('Максимальная длина content — 1000 символов'),
 
 	body('blogId')
+		.trim()
 		.exists()
 		.withMessage('Поле blogId обязательно')
 
