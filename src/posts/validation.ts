@@ -20,7 +20,7 @@ export const postBodyValidator = [
 		.isString()
 		.withMessage('Поле shortDescription должно быть строкой')
 
-		.isLength({ max: 100 })
+		.isLength({ min: 1, max: 100 })
 		.withMessage('Максимальная длина shortDescription — 100 символов'),
 
 	body('content')

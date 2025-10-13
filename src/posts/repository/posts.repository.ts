@@ -59,7 +59,7 @@ export const postsRepository = {
 	},
 
 	deletePostById(id: string) {
-		const index = postsDB.findIndex(b => b.id === id)
+		const index = postsDB.findIndex(b => String(b.id) === String(id))
 		if (index === -1) {
 			return false
 		}
