@@ -45,7 +45,7 @@ export const postsRouter = Router({})
 		(req: Request, res: Response) => {
 			const updateResult = postsRepository.updatePost({
 				...req.body,
-				id: +req.params.id,
+				id: req.params.id,
 			})
 
 			if (!updateResult) {
