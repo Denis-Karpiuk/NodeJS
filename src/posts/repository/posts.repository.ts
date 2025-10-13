@@ -6,14 +6,14 @@ export const postsRepository = {
 		return postsDB
 	},
 
-	getPostById(id: number) {
-		return postsDB.find(b => b.id === id)
+	getPostById(id: string) {
+		return postsDB.find(b => String(b.id) === String(id))
 	},
 
 	addPost(body: newPostBodyType) {
-		const lastBlogId = postsDB[postsDB.length - 1]?.id ?? 0
+		const lastPostId = postsDB[postsDB.length - 1]?.id ?? 0
 
-		const blog = blogsDB.find(b => b.id === Number(body.blogId))
+		const blog = blogsDB.find(b => String(b.id) === String(body.blogId))
 
 		if (!blog) {
 			return null
@@ -21,8 +21,10 @@ export const postsRepository = {
 
 		const blogName = blog?.name || ''
 
+		const newPostId = String(Number(lastPostId) + 1)
+
 		const post = {
-			id: lastBlogId + 1,
+			id: newPostId,
 			...body,
 		}
 
@@ -31,16 +33,16 @@ export const postsRepository = {
 		return blog
 	},
 
-	updatePost({ id, ...body }: newPostBodyType & { id: number }) {
+	updatePost({ id, ...body }: newPostBodyType & { id: string }) {
 		const updatedBlogIndex = postsDB.findIndex(
-			b => Number(b.id) === Number(id)
+			b => String(b.id) === String(id)
 		)
 
 		if (updatedBlogIndex === -1) {
 			return null
 		}
 
-		const blog = blogsDB.find(b => Number(b.id) === Number(body.blogId))
+		const blog = blogsDB.find(b => String(b.id) === String(body.blogId))
 
 		if (!blog) {
 			return null
@@ -55,7 +57,7 @@ export const postsRepository = {
 		return postsDB[updatedBlogIndex]
 	},
 
-	deletePostById(id: number) {
+	deletePostById(id: string) {
 		const index = postsDB.findIndex(b => b.id === id)
 		if (index === -1) {
 			return false

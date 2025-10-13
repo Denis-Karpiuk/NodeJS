@@ -12,7 +12,7 @@ export const postsRouter = Router({})
 	})
 
 	.get('/:id', (req, res) => {
-		const post = postsRepository.getPostById(+req.params.id)
+		const post = postsRepository.getPostById(req.params.id)
 		if (!post) {
 			res.status(HttpStatus.NotFound).send('Post not found')
 		}
@@ -65,7 +65,7 @@ export const postsRouter = Router({})
 		postBodyValidator,
 		validation,
 		(req: Request, res: Response) => {
-			const result = postsRepository.deletePostById(+req.params.id)
+			const result = postsRepository.deletePostById(req.params.id)
 
 			if (!result) {
 				res.status(HttpStatus.NotFound).send('Post not found')

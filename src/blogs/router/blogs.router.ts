@@ -4,7 +4,6 @@ import { blogsRepository } from '../repository/blogs.repository'
 import { adminGuardMiddleware } from '../../core/middlewares/adminGuardMiddleware.middleware'
 import { validation } from '../../core/middlewares/validatation.middleware'
 import { blogBodyValidator } from '../blogBodyValidation'
-import { param } from 'express-validator'
 import { idParamsValidator } from '../../core/middlewares/requiredId.middleWare'
 
 export const blogsRouter = Router({})
@@ -13,13 +12,13 @@ export const blogsRouter = Router({})
 	})
 
 	.get('/:id', (req, res) => {
-		const blog = blogsRepository.getBlogById(+req.params.id)
+		const blog = blogsRepository.getBlogById(req.params.id)
 		if (!blog) {
 			res.status(HttpStatus.NotFound).send('Blog not found')
 		}
 
 		res.status(HttpStatus.Ok).send(
-			blogsRepository.getBlogById(+req.params.id)
+			blogsRepository.getBlogById(req.params.id)
 		)
 	})
 
@@ -63,7 +62,7 @@ export const blogsRouter = Router({})
 		idParamsValidator,
 		validation,
 		(req: Request, res: Response) => {
-			const result = blogsRepository.deleteBlogById(+req.params.id)
+			const result = blogsRepository.deleteBlogById(req.params.id)
 
 			if (!result) {
 				res.status(HttpStatus.NotFound).send('Blog not found')

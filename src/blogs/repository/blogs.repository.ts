@@ -6,15 +6,17 @@ export const blogsRepository = {
 		return blogsDB
 	},
 
-	getBlogById(id: number) {
-		return blogsDB.find(b => b.id === id)
+	getBlogById(id: string) {
+		return blogsDB.find(b => String(b.id) === String(id))
 	},
 
 	addBlog({ description, name, websiteUrl }: newBlogBodyType) {
 		const lastBlogId = blogsDB[blogsDB.length - 1]?.id ?? 0
 
+		const newBlogId = String(Number(lastBlogId) + 1)
+
 		const blog = {
-			id: lastBlogId + 1,
+			id: newBlogId,
 			name,
 			description,
 			websiteUrl,
@@ -30,8 +32,10 @@ export const blogsRepository = {
 		name,
 		websiteUrl,
 		id,
-	}: newBlogBodyType & { id: number }) {
-		const updatedBlogIndex = blogsDB.findIndex(b => b.id === id)
+	}: newBlogBodyType & { id: string }) {
+		const updatedBlogIndex = blogsDB.findIndex(
+			b => String(b.id) === String(id)
+		)
 
 		if (updatedBlogIndex === -1) {
 			return null
@@ -47,8 +51,8 @@ export const blogsRepository = {
 		return blogsDB[updatedBlogIndex]
 	},
 
-	deleteBlogById(id: number) {
-		const index = blogsDB.findIndex(b => b.id === id)
+	deleteBlogById(id: string) {
+		const index = blogsDB.findIndex(b => String(b.id) === String(id))
 		if (index === -1) {
 			return false
 		}
