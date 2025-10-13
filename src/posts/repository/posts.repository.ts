@@ -26,6 +26,7 @@ export const postsRepository = {
 		const post = {
 			id: newPostId,
 			...body,
+			blogName,
 		}
 
 		postsDB.push({ ...post, blogName })
