@@ -1,70 +1,47 @@
-import { blogsDB, postsDB } from '../../db/db'
+import { BlogsModel } from '../../models/blogs.model'
+import { PostsModel } from '../../models/posts.model'
 import { newPostBodyType } from '../dto/input.post.dto'
 
 export const postsRepository = {
-	getPosts() {
-		return postsDB
+	async getPosts() {
+		return await PostsModel.find()
 	},
 
-	getPostById(id: string) {
-		return postsDB.find(b => String(b.id) === String(id))
+	async getPostById(id: string) {
+		return await PostsModel.findById(id)
 	},
 
-	addPost(body: newPostBodyType) {
-		const lastPostId = postsDB[postsDB.length - 1]?.id ?? 0
+	async addPost(body: newPostBodyType) {
+		console.log(body.blogId)
 
-		const blog = blogsDB.find(b => String(b.id) === String(body.blogId))
+		const blog = await BlogsModel.findById(body.blogId).lean()
 
 		if (!blog) {
 			return null
 		}
 
-		const blogName = blog?.name || ''
-
-		const newPostId = String(Number(lastPostId) + 1)
-
 		const post = {
-			id: newPostId,
 			...body,
-			blogName,
+			blogName: blog.name || '',
 		}
 
-		postsDB.push({ ...post, blogName })
+		await PostsModel.insertOne(post)
 
 		return post
 	},
 
-	updatePost({ id, ...body }: newPostBodyType & { id: string }) {
-		const updatedBlogIndex = postsDB.findIndex(
-			b => String(b.id) === String(id)
-		)
+	async updatePost({ id, ...body }: newPostBodyType & { id: string }) {
+		const updatedPost = PostsModel.findByIdAndUpdate(id, body)
 
-		if (updatedBlogIndex === -1) {
-			return null
-		}
-
-		const blog = blogsDB.find(b => String(b.id) === String(body.blogId))
-
-		if (!blog) {
-			return null
-		}
-
-		postsDB[updatedBlogIndex] = {
-			id,
-			blogName: blog.name,
-			...body,
-		}
-
-		return postsDB[updatedBlogIndex]
+		return updatedPost
 	},
 
-	deletePostById(id: string) {
-		const index = postsDB.findIndex(b => String(b.id) === String(id))
-		if (index === -1) {
+	async deletePostById(id: string) {
+		const deletedPost = await PostsModel.findByIdAndDelete(id)
+		if (!deletedPost) {
 			return false
 		}
 
-		postsDB.splice(index, 1)
 		return true
 	},
 }

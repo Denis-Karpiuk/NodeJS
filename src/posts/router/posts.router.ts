@@ -7,12 +7,12 @@ import { validation } from '../../core/middlewares/validatation.middleware'
 import { idParamsValidator } from '../../core/middlewares/requiredId.middleWare'
 
 export const postsRouter = Router({})
-	.get('', (_, res) => {
-		res.status(HttpStatus.Ok).send(postsRepository.getPosts())
+	.get('', async (_, res) => {
+		res.status(HttpStatus.Ok).send(await postsRepository.getPosts())
 	})
 
-	.get('/:id', (req, res) => {
-		const post = postsRepository.getPostById(req.params.id)
+	.get('/:id', async (req, res) => {
+		const post = await postsRepository.getPostById(req.params.id)
 		if (!post) {
 			res.status(HttpStatus.NotFound).send('Post not found')
 		}
@@ -25,8 +25,8 @@ export const postsRouter = Router({})
 		adminGuardMiddleware,
 		postBodyValidator,
 		validation,
-		(req: Request, res: Response) => {
-			const result = postsRepository.addPost(req.body)
+		async (req: Request, res: Response) => {
+			const result = await postsRepository.addPost(req.body)
 
 			if (!result) {
 				res.status(HttpStatus.NotFound).send('Blog not found')
@@ -42,8 +42,8 @@ export const postsRouter = Router({})
 		idParamsValidator,
 		postBodyValidator,
 		validation,
-		(req: Request, res: Response) => {
-			const updateResult = postsRepository.updatePost({
+		async (req: Request, res: Response) => {
+			const updateResult = await postsRepository.updatePost({
 				...req.body,
 				id: req.params.id,
 			})
@@ -63,15 +63,15 @@ export const postsRouter = Router({})
 		adminGuardMiddleware,
 		idParamsValidator,
 		validation,
-		(req: Request, res: Response) => {
-			const result = postsRepository.deletePostById(req.params.id)
+		async (req: Request, res: Response) => {
+			const result = await postsRepository.deletePostById(req.params.id)
 
 			if (!result) {
 				res.status(HttpStatus.NotFound).send('Post not found')
 			}
 
 			res.status(HttpStatus.NoContent).send(
-				`Post ${+req.params.id} was deleted`
+				`Post ${req.params.id} was deleted`
 			)
 		}
 	)
