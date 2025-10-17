@@ -17,22 +17,31 @@ export const postsRepository = {
 	},
 
 	async addPost(body: newPostBodyType) {
-		console.log(body.blogId)
-
 		const blog = await BlogsModel.findById(body.blogId).lean()
 
 		if (!blog) {
 			return null
 		}
 
-		const post = {
-			...body,
-			blogName: blog.name || '',
+		const newPost = new PostsModel({
+			title: body.title,
+			shortDescription: body.shortDescription,
+			content: body.content,
+			blogId: body.blogId,
+			blogName: blog.name,
+		})
+
+		const savedPost = await newPost.save()
+
+		return {
+			id: savedPost._id.toString(), // ← добавляем поле id
+			title: savedPost.title,
+			shortDescription: savedPost.shortDescription,
+			content: savedPost.content,
+			blogId: savedPost.blogId,
+			blogName: savedPost.blogName,
+			createdAt: savedPost.createdAt,
 		}
-
-		await PostsModel.insertOne(post)
-
-		return post
 	},
 
 	async updatePost({ id, ...body }: newPostBodyType & { id: string }) {

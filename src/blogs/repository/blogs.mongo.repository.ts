@@ -15,17 +15,23 @@ export const blogsRepository = {
 	},
 
 	async addBlog({ description, name, websiteUrl }: newBlogBodyType) {
-		const blog = {
+		const newBlog = new BlogsModel({
 			name,
 			description,
 			websiteUrl,
-			createdAt: new Date(),
 			isMembership: false,
+		})
+
+		const savedBlog = await newBlog.save()
+
+		return {
+			id: savedBlog._id.toString(), // ← добавляем поле id
+			name: savedBlog.name,
+			description: savedBlog.description,
+			websiteUrl: savedBlog.websiteUrl,
+			createdAt: savedBlog.createdAt,
+			isMembership: savedBlog.isMembership,
 		}
-
-		await BlogsModel.insertOne(blog)
-
-		return blog
 	},
 
 	async updateBlog({
