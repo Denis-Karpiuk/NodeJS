@@ -1,25 +1,24 @@
 import { Router, Request, Response } from 'express'
 import { HttpStatus } from '../../core/types/http-statuses'
-import { blogsRepository } from '../repository/blogs.repository'
+import { blogsRepository } from '../repository/blogs.mongo.repository'
 import { adminGuardMiddleware } from '../../core/middlewares/adminGuardMiddleware.middleware'
 import { validation } from '../../core/middlewares/validatation.middleware'
 import { blogBodyValidator } from '../blogBodyValidation'
 import { idParamsValidator } from '../../core/middlewares/requiredId.middleWare'
 
 export const blogsRouter = Router({})
-	.get('', (_, res) => {
-		res.status(HttpStatus.Ok).send(blogsRepository.getBlogs())
+	.get('', async (_, res) => {
+		res.status(HttpStatus.Ok).send(await blogsRepository.getBlogs())
 	})
 
-	.get('/:id', (req, res) => {
-		const blog = blogsRepository.getBlogById(req.params.id)
+	.get('/:id', async (req, res) => {
+		const blog = await blogsRepository.getBlogById(req.params.id)
+
 		if (!blog) {
 			res.status(HttpStatus.NotFound).send('Blog not found')
 		}
 
-		res.status(HttpStatus.Ok).send(
-			blogsRepository.getBlogById(req.params.id)
-		)
+		res.status(HttpStatus.Ok).send(blog)
 	})
 
 	.post(
@@ -27,8 +26,8 @@ export const blogsRouter = Router({})
 		adminGuardMiddleware,
 		blogBodyValidator,
 		validation,
-		(req: Request, res: Response) => {
-			const result = blogsRepository.addBlog(req.body)
+		async (req: Request, res: Response) => {
+			const result = await blogsRepository.addBlog(req.body)
 
 			res.status(HttpStatus.Created).send(result)
 		}
@@ -40,8 +39,8 @@ export const blogsRouter = Router({})
 		idParamsValidator,
 		blogBodyValidator,
 		validation,
-		(req: Request, res: Response) => {
-			const updateResult = blogsRepository.updateBlog({
+		async (req: Request, res: Response) => {
+			const updateResult = await blogsRepository.updateBlog({
 				...req.body,
 				id: req.params.id,
 			})
@@ -69,7 +68,7 @@ export const blogsRouter = Router({})
 			}
 
 			res.status(HttpStatus.NoContent).send(
-				`Blog ${+req.params.id} was deleted`
+				`Blog ${req.params.id} was deleted`
 			)
 		}
 	)

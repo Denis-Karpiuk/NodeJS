@@ -22,7 +22,7 @@ export const blogsRepository = {
 			websiteUrl,
 		}
 
-		blogsDB.push(blog)
+		// blogsDB.push(blog)
 
 		return blog
 	},
@@ -41,12 +41,12 @@ export const blogsRepository = {
 			return null
 		}
 
-		blogsDB[updatedBlogIndex] = {
-			id,
-			name,
-			description,
-			websiteUrl,
-		}
+		// blogsDB[updatedBlogIndex] = {
+		// 	id,
+		// 	name,
+		// 	description,
+		// 	websiteUrl,
+		// }
 
 		return blogsDB[updatedBlogIndex]
 	},
