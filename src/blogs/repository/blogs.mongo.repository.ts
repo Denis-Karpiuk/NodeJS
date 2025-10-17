@@ -61,6 +61,9 @@ export const blogsRepository = {
 	},
 
 	async deleteBlogById(id: string) {
+		if (!mongoose.Types.ObjectId.isValid(id)) {
+			return null
+		}
 		const deletedBlog = await BlogsModel.findByIdAndDelete(id)
 
 		return deletedBlog

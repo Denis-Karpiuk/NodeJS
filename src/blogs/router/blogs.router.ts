@@ -60,8 +60,8 @@ export const blogsRouter = Router({})
 		adminGuardMiddleware,
 		idParamsValidator,
 		validation,
-		(req: Request, res: Response) => {
-			const result = blogsRepository.deleteBlogById(req.params.id)
+		async (req: Request, res: Response) => {
+			const result = await blogsRepository.deleteBlogById(req.params.id)
 
 			if (!result) {
 				res.status(HttpStatus.NotFound).send('Blog not found')
