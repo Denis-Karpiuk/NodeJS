@@ -7,7 +7,7 @@ const PostSchema = new Schema(
 		content: { type: String, required: true },
 		blogId: { type: String, required: true },
 		blogName: { type: String, required: true },
-		createdAt: { type: String, default: Date.now },
+		createdAt: { type: String, default: new Date().toISOString() },
 	},
 	{ _id: true }
 )

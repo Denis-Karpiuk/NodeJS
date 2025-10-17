@@ -4,11 +4,16 @@ import { newPostBodyType } from '../dto/input.post.dto'
 
 export const postsRepository = {
 	async getPosts() {
-		return await PostsModel.find()
+		const posts = await PostsModel.find().lean()
+
+		const responsePosts = posts.map(mapPostToResponse)
+
+		return responsePosts
 	},
 
 	async getPostById(id: string) {
-		return await PostsModel.findById(id)
+		const post = await PostsModel.findById(id)
+		return mapPostToResponse(post)
 	},
 
 	async addPost(body: newPostBodyType) {
@@ -44,4 +49,17 @@ export const postsRepository = {
 
 		return true
 	},
+}
+
+// Вспомогательная функция для постов
+function mapPostToResponse(post: any) {
+	return {
+		id: post._id ? post._id.toString() : post.id,
+		title: post.title,
+		shortDescription: post.shortDescription,
+		content: post.content,
+		blogId: post.blogId,
+		blogName: post.blogName,
+		createdAt: post.createdAt,
+	}
 }

@@ -5,7 +5,7 @@ const BlogSchema = new Schema(
 		name: { type: String, required: true },
 		description: { type: String, required: true },
 		websiteUrl: { type: String, required: true },
-		createdAt: { type: Date, default: Date.now },
+		createdAt: { type: Date, default: new Date().toISOString() },
 		isMembership: { type: Boolean, default: false },
 	},
 	{ _id: true }

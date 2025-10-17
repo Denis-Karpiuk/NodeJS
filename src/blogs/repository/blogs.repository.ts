@@ -22,8 +22,6 @@ export const blogsRepository = {
 			websiteUrl,
 		}
 
-		// blogsDB.push(blog)
-
 		return blog
 	},
 
@@ -40,13 +38,6 @@ export const blogsRepository = {
 		if (updatedBlogIndex === -1) {
 			return null
 		}
-
-		// blogsDB[updatedBlogIndex] = {
-		// 	id,
-		// 	name,
-		// 	description,
-		// 	websiteUrl,
-		// }
 
 		return blogsDB[updatedBlogIndex]
 	},
