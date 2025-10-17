@@ -11,7 +11,9 @@ export const blogsRepository = {
 	},
 
 	async getBlogById(id: string) {
-		return await BlogsModel.findById(id).lean()
+		const blog = await BlogsModel.findById(id).lean()
+
+		return mapBlogToResponse(blog)
 	},
 
 	async addBlog({ description, name, websiteUrl }: newBlogBodyType) {

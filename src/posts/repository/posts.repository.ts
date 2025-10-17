@@ -34,7 +34,7 @@ export const postsRepository = {
 		const savedPost = await newPost.save()
 
 		return {
-			id: savedPost._id.toString(), // ← добавляем поле id
+			id: savedPost._id.toString(),
 			title: savedPost.title,
 			shortDescription: savedPost.shortDescription,
 			content: savedPost.content,
