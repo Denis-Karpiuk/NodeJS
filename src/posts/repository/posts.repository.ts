@@ -1,3 +1,4 @@
+import mongoose from 'mongoose'
 import { BlogsModel } from '../../models/blogs.model'
 import { PostsModel } from '../../models/posts.model'
 import { newPostBodyType } from '../dto/input.post.dto'
@@ -12,7 +13,12 @@ export const postsRepository = {
 	},
 
 	async getPostById(id: string) {
+		if (!mongoose.Types.ObjectId.isValid(id)) {
+			return null
+		}
+
 		const post = await PostsModel.findById(id)
+
 		return mapPostToResponse(post)
 	},
 
@@ -62,6 +68,10 @@ export const postsRepository = {
 
 // Вспомогательная функция для постов
 function mapPostToResponse(post: any) {
+	if (!post) {
+		return null
+	}
+
 	return {
 		id: post._id ? post._id.toString() : post.id,
 		title: post.title,

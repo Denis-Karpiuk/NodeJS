@@ -1,3 +1,4 @@
+import mongoose from 'mongoose'
 import { BlogsModel } from '../../models/blogs.model'
 import { newBlogBodyType } from '../dto/input.blog.dto'
 
@@ -11,6 +12,10 @@ export const blogsRepository = {
 	},
 
 	async getBlogById(id: string) {
+		if (!mongoose.Types.ObjectId.isValid(id)) {
+			return null
+		}
+
 		const blog = await BlogsModel.findById(id).lean()
 
 		return mapBlogToResponse(blog)
@@ -63,6 +68,10 @@ export const blogsRepository = {
 }
 
 function mapBlogToResponse(blog: any) {
+	if (!blog) {
+		return null
+	}
+
 	return {
 		id: blog._id ? blog._id.toString() : blog.id,
 		name: blog.name,
