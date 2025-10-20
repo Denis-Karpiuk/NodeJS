@@ -2,12 +2,12 @@ import { Request, Response } from 'express'
 import { matchedData } from 'express-validator'
 import { HttpStatus } from '../../../core/types/http-statuses'
 import { setDefaultSortAndPaginationIfNotExist } from '../../../core/utils/set-default-sort-and-pagination'
-import { BlogSearchParamsType, blogsService } from '../../service/blog.service'
+import { blogsService } from '../../service/blog.service'
 
 export const getBlogsListHandler = async (req: Request, res: Response) => {
 	const sanitizedQuery = matchedData(req, {
 		locations: ['query'],
-		includeOptionals: true,
+		includeOptionals: false,
 	})
 
 	const inputQuery = setDefaultSortAndPaginationIfNotExist(sanitizedQuery)
