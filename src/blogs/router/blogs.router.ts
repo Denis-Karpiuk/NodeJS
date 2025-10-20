@@ -1,15 +1,27 @@
-import { Router, Request, Response } from 'express'
-import { HttpStatus } from '../../core/types/http-statuses'
-import { blogsRepository } from '../repository/blogs.mongo.repository'
+import { Request, Response, Router } from 'express'
 import { adminGuardMiddleware } from '../../core/middlewares/adminGuardMiddleware.middleware'
-import { validation } from '../../core/middlewares/validatation.middleware'
-import { blogBodyValidator } from '../blogBodyValidation'
 import { idParamsValidator } from '../../core/middlewares/requiredId.middleWare'
+import { validation } from '../../core/middlewares/validatation.middleware'
+import { HttpStatus } from '../../core/types/http-statuses'
+import { blogBodyValidator } from '../blogBodyValidation'
+import { blogsRepository } from '../repository/blogs.mongo.repository'
+import { paginationAndSortingValidation } from '../../core/middlewares/query-pagination-sorting.validatiion-middleware'
+import { getBlogsListHandler } from './handlers/get-blogs-list-handler'
+import { searchTermValidation } from '../../core/middlewares/search-term-validation'
+
+const blogsSortFields = {
+	createdAt: 'createdAt',
+	name: 'name',
+}
 
 export const blogsRouter = Router({})
-	.get('', async (_, res) => {
-		res.status(HttpStatus.Ok).send(await blogsRepository.getBlogs())
-	})
+	.get(
+		'',
+		searchTermValidation('searchNameTerm'),
+		paginationAndSortingValidation(blogsSortFields),
+		validation,
+		getBlogsListHandler
+	)
 
 	.get('/:id', async (req, res) => {
 		const blog = await blogsRepository.getBlogById(req.params.id)

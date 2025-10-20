@@ -1,14 +1,50 @@
 import mongoose from 'mongoose'
 import { BlogsModel } from '../../models/blogs.model'
 import { newBlogBodyType } from '../dto/input.blog.dto'
+import {
+	BlogSearchParamsType,
+	BlogsSearchResultType,
+} from '../service/blog.service'
+
+export type BlogType = {
+	id: string
+	name: string
+	description: string
+	websiteUrl: string
+	createdAt: string
+	isMembership: boolean
+}
 
 export const blogsRepository = {
-	async getBlogs() {
-		const blogs = await BlogsModel.find().lean()
+	async findMany({
+		pageNumber,
+		pageSize,
+		searchNameTerm,
+		sortBy,
+		sortDirection,
+	}: BlogSearchParamsType): Promise<BlogsSearchResultType> {
+		const skip = (pageNumber - 1) * pageSize
+		const findFilter: any = {}
 
-		const responseBlogs = blogs.map(mapBlogToResponse)
+		if (searchNameTerm) {
+			findFilter.name = { $regex: searchNameTerm, $options: 'i' }
+		}
 
-		return responseBlogs
+		const blogs = await BlogsModel.find(findFilter)
+			.sort({ [sortBy]: sortDirection })
+			.skip(skip)
+			.limit(pageSize)
+			.lean()
+
+		const totalCount = await BlogsModel.countDocuments(findFilter)
+
+		return {
+			pagesCount: Math.ceil(totalCount / pageSize),
+			page: pageNumber,
+			pageSize,
+			totalCount,
+			items: blogs.map(mapBlogToResponse),
+		}
 	},
 
 	async getBlogById(id: string) {
@@ -70,11 +106,7 @@ export const blogsRepository = {
 	},
 }
 
-function mapBlogToResponse(blog: any) {
-	if (!blog) {
-		return null
-	}
-
+export function mapBlogToResponse(blog: any): BlogType {
 	return {
 		id: blog._id ? blog._id.toString() : blog.id,
 		name: blog.name,
