@@ -22,7 +22,7 @@ export const postsRepository = {
 
 		const posts = await PostsModel.find(findFilter)
 			.sort({
-				[sortBy]: sortDirection === 'asc' ? 1 : -1,
+				[sortBy]: sortDirection === SortDirection.Asc ? 1 : -1,
 			})
 			.skip(skip)
 			.limit(pageSize)

@@ -5,6 +5,7 @@ import {
 	BlogSearchParamsType,
 	BlogsSearchResultType,
 } from '../service/blog.service'
+import { SortDirection } from '../../core/types/sort-direction'
 
 export type BlogType = {
 	id: string
@@ -31,7 +32,7 @@ export const blogsRepository = {
 		}
 
 		const blogs = await BlogsModel.find(findFilter)
-			.sort({ [sortBy]: sortDirection === 'asc' ? 1 : -1 })
+			.sort({ [sortBy]: sortDirection === SortDirection.Asc ? 1 : -1 })
 			.skip(skip)
 			.limit(pageSize)
 			.lean()
