@@ -2,6 +2,7 @@ import mongoose from 'mongoose'
 import { PostsModel } from '../../models/posts.model'
 import { newPostBodyType } from '../dto/input.post.dto'
 import { BlogsModel } from '../../models/blogs.model'
+import { SortDirection } from '../../core/types/sort-direction'
 
 export const postsRepository = {
 	async findMany({
@@ -19,8 +20,10 @@ export const postsRepository = {
 			findFilter.blogId = blogId
 		}
 
-		const blogs = await PostsModel.find(findFilter)
-			.sort({ [sortBy]: sortDirection })
+		const posts = await PostsModel.find(findFilter)
+			.sort({
+				[sortBy]: sortDirection === 'asc' ? 1 : -1,
+			})
 			.skip(skip)
 			.limit(pageSize)
 			.lean()
@@ -32,7 +35,7 @@ export const postsRepository = {
 			page: pageNumber,
 			pageSize,
 			totalCount,
-			items: blogs.map(mapPostToResponse),
+			items: posts.map(mapPostToResponse),
 		}
 	},
 

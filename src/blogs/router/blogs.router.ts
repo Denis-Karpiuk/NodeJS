@@ -98,6 +98,7 @@ export const blogsRouter = Router({})
 
 	.post(
 		'/:id/posts',
+		adminGuardMiddleware,
 		idParamsValidator,
 		postByByBlogBodyValidator,
 		validation,

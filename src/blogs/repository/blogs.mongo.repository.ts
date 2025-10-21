@@ -31,7 +31,7 @@ export const blogsRepository = {
 		}
 
 		const blogs = await BlogsModel.find(findFilter)
-			.sort({ [sortBy]: sortDirection })
+			.sort({ [sortBy]: sortDirection === 'asc' ? 1 : -1 })
 			.skip(skip)
 			.limit(pageSize)
 			.lean()
@@ -53,6 +53,10 @@ export const blogsRepository = {
 		}
 
 		const blog = await BlogsModel.findById(id).lean()
+
+		if (!blog) {
+			return null
+		}
 
 		return mapBlogToResponse(blog)
 	},
