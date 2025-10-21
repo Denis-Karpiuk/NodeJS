@@ -15,6 +15,7 @@ import { getPostsByBlogIdHandler } from './handlers/get-blog-posts-by-id'
 const blogsSortFields = {
 	createdAt: 'createdAt',
 	title: 'title',
+	name: 'name',
 }
 
 export const blogsRouter = Router({})
