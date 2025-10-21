@@ -84,3 +84,16 @@ export const blogsRouter = Router({})
 			)
 		}
 	)
+
+	.get(
+		'/:id/posts',
+		idParamsValidator,
+		validation,
+		async (req: Request, res: Response) => {
+			res.status(HttpStatus.Ok).send('result')
+		}
+	)
+
+	.post('/:id/posts', async (req: Request, res: Response) => {
+		res.status(HttpStatus.Created).send('result')
+	})

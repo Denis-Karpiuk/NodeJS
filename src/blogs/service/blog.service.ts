@@ -17,11 +17,11 @@ export type BlogsSearchResultType = {
 	items: BlogType[]
 }
 
+type ParamsType = PaginationAndSorting<{ createdAt: string }> &
+	Partial<BlogSearchParamsType>
+
 export const blogsService = {
-	async findMany(
-		params: PaginationAndSorting<{ createdAt: string }> &
-			Partial<BlogSearchParamsType>
-	): Promise<BlogsSearchResultType> {
+	async findMany(params: ParamsType): Promise<BlogsSearchResultType> {
 		return blogsRepository.findMany(params)
 	},
 

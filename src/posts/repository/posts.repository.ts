@@ -1,15 +1,32 @@
 import mongoose from 'mongoose'
-import { BlogsModel } from '../../models/blogs.model'
 import { PostsModel } from '../../models/posts.model'
 import { newPostBodyType } from '../dto/input.post.dto'
+import { BlogsModel } from '../../models/blogs.model'
 
 export const postsRepository = {
-	async getPosts() {
-		const posts = await PostsModel.find().lean()
+	async findMany({
+		pageNumber,
+		pageSize,
+		sortBy,
+		sortDirection,
+	}: any): Promise<any> {
+		const skip = (pageNumber - 1) * pageSize
 
-		const responsePosts = posts.map(mapPostToResponse)
+		const blogs = await PostsModel.find()
+			.sort({ [sortBy]: sortDirection })
+			.skip(skip)
+			.limit(pageSize)
+			.lean()
 
-		return responsePosts
+		const totalCount = await PostsModel.countDocuments()
+
+		return {
+			pagesCount: Math.ceil(totalCount / pageSize),
+			page: pageNumber,
+			pageSize,
+			totalCount,
+			items: blogs.map(mapPostToResponse),
+		}
 	},
 
 	async getPostById(id: string) {

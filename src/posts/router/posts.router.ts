@@ -5,11 +5,21 @@ import { adminGuardMiddleware } from '../../core/middlewares/adminGuardMiddlewar
 import { postBodyValidator } from '../validation'
 import { validation } from '../../core/middlewares/validatation.middleware'
 import { idParamsValidator } from '../../core/middlewares/requiredId.middleWare'
+import { getPostsListHandler } from './handlers/get-blogs-list-handler'
+import { paginationAndSortingValidation } from '../../core/middlewares/query-pagination-sorting.validatiion-middleware'
+
+const postsSortFields = {
+	createdAt: 'createdAt',
+	title: 'title',
+}
 
 export const postsRouter = Router({})
-	.get('', async (_, res) => {
-		res.status(HttpStatus.Ok).send(await postsRepository.getPosts())
-	})
+	.get(
+		'',
+		paginationAndSortingValidation(postsSortFields),
+		validation,
+		getPostsListHandler
+	)
 
 	.get('/:id', async (req, res) => {
 		const post = await postsRepository.getPostById(req.params.id)
