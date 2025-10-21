@@ -24,6 +24,4 @@ export const blogsService = {
 	async findMany(params: ParamsType): Promise<BlogsSearchResultType> {
 		return blogsRepository.findMany(params)
 	},
-
-	async getBlogById(id: string) {},
 }

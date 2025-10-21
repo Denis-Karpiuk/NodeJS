@@ -8,10 +8,13 @@ import { blogsRepository } from '../repository/blogs.mongo.repository'
 import { paginationAndSortingValidation } from '../../core/middlewares/query-pagination-sorting.validatiion-middleware'
 import { getBlogsListHandler } from './handlers/get-blogs-list-handler'
 import { searchTermValidation } from '../../core/middlewares/search-term-validation'
+import { addPostsByBlogId } from './handlers/add-posts-by-blogId'
+import { postByByBlogBodyValidator } from '../../posts/validationPostByBlogBody'
+import { getPostsByBlogIdHandler } from './handlers/get-blog-posts-by-id'
 
 const blogsSortFields = {
 	createdAt: 'createdAt',
-	name: 'name',
+	title: 'title',
 }
 
 export const blogsRouter = Router({})
@@ -88,12 +91,15 @@ export const blogsRouter = Router({})
 	.get(
 		'/:id/posts',
 		idParamsValidator,
+		paginationAndSortingValidation(blogsSortFields),
 		validation,
-		async (req: Request, res: Response) => {
-			res.status(HttpStatus.Ok).send('result')
-		}
+		getPostsByBlogIdHandler
 	)
 
-	.post('/:id/posts', async (req: Request, res: Response) => {
-		res.status(HttpStatus.Created).send('result')
-	})
+	.post(
+		'/:id/posts',
+		idParamsValidator,
+		postByByBlogBodyValidator,
+		validation,
+		addPostsByBlogId
+	)

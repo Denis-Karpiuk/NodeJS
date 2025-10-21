@@ -9,16 +9,23 @@ export const postsRepository = {
 		pageSize,
 		sortBy,
 		sortDirection,
+		blogId,
 	}: any): Promise<any> {
 		const skip = (pageNumber - 1) * pageSize
 
-		const blogs = await PostsModel.find()
+		const findFilter: any = {}
+
+		if (blogId) {
+			findFilter.blogId = blogId
+		}
+
+		const blogs = await PostsModel.find(findFilter)
 			.sort({ [sortBy]: sortDirection })
 			.skip(skip)
 			.limit(pageSize)
 			.lean()
 
-		const totalCount = await PostsModel.countDocuments()
+		const totalCount = await PostsModel.countDocuments(findFilter)
 
 		return {
 			pagesCount: Math.ceil(totalCount / pageSize),
