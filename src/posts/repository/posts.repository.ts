@@ -20,6 +20,14 @@ export const postsRepository = {
 			findFilter.blogId = blogId
 		}
 
+		console.log({
+			pageNumber,
+			pageSize,
+			sortBy,
+			sortDirection,
+			blogId,
+		})
+
 		const posts = await PostsModel.find(findFilter)
 			.sort({
 				[sortBy]: sortDirection === SortDirection.Asc ? 1 : -1,

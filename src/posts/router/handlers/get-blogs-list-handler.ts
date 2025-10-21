@@ -14,7 +14,7 @@ export const getPostsListHandler = async (req: Request, res: Response) => {
 
 	const posts = await postsService.findMany({
 		...inputQuery,
-		sortBy: 'blogName',
+		sortBy: 'createdAt',
 	})
 
 	res.status(HttpStatus.Ok).send(posts)
