@@ -13,9 +13,9 @@ import { postByByBlogBodyValidator } from '../../posts/validationPostByBlogBody'
 import { getPostsByBlogIdHandler } from './handlers/get-blog-posts-by-id'
 
 const blogsSortFields = {
+	name: 'name',
 	createdAt: 'createdAt',
 	title: 'title',
-	name: 'name',
 }
 
 export const blogsRouter = Router({})

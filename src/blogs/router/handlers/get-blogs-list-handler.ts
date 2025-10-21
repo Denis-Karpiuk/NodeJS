@@ -12,10 +12,7 @@ export const getBlogsListHandler = async (req: Request, res: Response) => {
 
 	const inputQuery = setDefaultSortAndPaginationIfNotExist(sanitizedQuery)
 
-	const blogs = await blogsService.findMany({
-		...inputQuery,
-		sortBy: 'createdAt',
-	})
+	const blogs = await blogsService.findMany(inputQuery)
 
 	res.status(HttpStatus.Ok).send(blogs)
 }
