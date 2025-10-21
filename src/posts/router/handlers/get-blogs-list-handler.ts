@@ -3,6 +3,7 @@ import { matchedData } from 'express-validator'
 import { HttpStatus } from '../../../core/types/http-statuses'
 import { setDefaultSortAndPaginationIfNotExist } from '../../../core/utils/set-default-sort-and-pagination'
 import { postsService } from '../../services/post-service'
+import { SortDirection } from '../../../core/types/sort-direction'
 
 export const getPostsListHandler = async (req: Request, res: Response) => {
 	const sanitizedQuery = matchedData(req, {
@@ -15,6 +16,7 @@ export const getPostsListHandler = async (req: Request, res: Response) => {
 	const posts = await postsService.findMany({
 		...inputQuery,
 		sortBy: 'createdAt',
+		sortDirection: SortDirection.Desc,
 	})
 
 	res.status(HttpStatus.Ok).send(posts)
