@@ -8,7 +8,7 @@ import { SortDirection } from '../../../core/types/sort-direction'
 export const getBlogsListHandler = async (req: Request, res: Response) => {
 	const sanitizedQuery = matchedData(req, {
 		locations: ['query'],
-		includeOptionals: false,
+		includeOptionals: true,
 	})
 
 	const inputQuery = setDefaultSortAndPaginationIfNotExist(sanitizedQuery)

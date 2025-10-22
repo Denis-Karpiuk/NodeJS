@@ -8,7 +8,7 @@ import { blogsRepository } from '../../repository/blogs.mongo.repository'
 export const getPostsByBlogIdHandler = async (req: Request, res: Response) => {
 	const sanitizedQuery = matchedData(req, {
 		locations: ['query'],
-		includeOptionals: false,
+		includeOptionals: true,
 	})
 
 	const blogId = req.params.id
