@@ -6,7 +6,7 @@ import { PaginationAndSorting } from '../types/pagination-and-sorting'
 const DEFAULT_PAGE_NUMBER = 1
 const DEFAULT_PAGE_SIZE = 10
 const DEFAULT_SORT_DIRECTION = SortDirection.Desc
-const DEFAULT_SORT_BY = 'title'
+const DEFAULT_SORT_BY = '_id'
 
 export const paginationAndSortingDefault: PaginationAndSorting<string> = {
 	pageNumber: DEFAULT_PAGE_NUMBER,

@@ -15,8 +15,6 @@ export const getPostsListHandler = async (req: Request, res: Response) => {
 
 	const posts = await postsService.findMany({
 		...inputQuery,
-		sortBy: 'createdAt',
-		sortDirection: SortDirection.Desc,
 	})
 
 	res.status(HttpStatus.Ok).send(posts)
