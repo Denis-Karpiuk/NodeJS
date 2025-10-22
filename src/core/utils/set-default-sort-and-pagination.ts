@@ -5,8 +5,10 @@ export function setDefaultSortAndPaginationIfNotExist<P = string>(
 	query: Partial<PaginationAndSorting<P>>
 ): PaginationAndSorting<P> {
 	return {
-		...paginationAndSortingDefault,
-		...query,
+		pageNumber: query.pageNumber ?? paginationAndSortingDefault.pageNumber,
+		pageSize: query.pageSize ?? paginationAndSortingDefault.pageSize,
 		sortBy: (query.sortBy ?? paginationAndSortingDefault.sortBy) as P,
+		sortDirection:
+			query.sortDirection ?? paginationAndSortingDefault.sortDirection,
 	}
 }
