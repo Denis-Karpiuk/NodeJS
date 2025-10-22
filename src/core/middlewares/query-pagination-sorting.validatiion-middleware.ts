@@ -22,21 +22,18 @@ export function paginationAndSortingValidation<T extends string>(
 
 	return [
 		query('pageNumber')
-			.optional({ values: 'falsy' })
 			.default(DEFAULT_PAGE_NUMBER)
 			.isInt({ min: 1 })
 			.withMessage('Page number must be a positive integer')
 			.toInt(),
 
 		query('pageSize')
-			.optional({ values: 'falsy' }) //чтобы default() применялся и для ''
 			.default(DEFAULT_PAGE_SIZE)
 			.isInt({ min: 1, max: 100 })
 			.withMessage('Page size must be between 1 and 100')
 			.toInt(),
 
 		query('sortBy')
-			.optional({ values: 'falsy' })
 			.default(Object.values(sortFieldsEnum)[0]) // Первое значение enum как дефолтное
 			.isIn(allowedSortFields)
 			.withMessage(
@@ -44,7 +41,6 @@ export function paginationAndSortingValidation<T extends string>(
 			),
 
 		query('sortDirection')
-			.optional({ values: 'falsy' })
 			.default(DEFAULT_SORT_DIRECTION)
 			.isIn(Object.values(SortDirection))
 			.withMessage(

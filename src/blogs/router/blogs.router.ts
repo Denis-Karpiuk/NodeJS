@@ -18,6 +18,11 @@ const blogsSortFields = {
 	title: 'title',
 }
 
+const postsSortFields = {
+	createdAt: 'createdAt',
+	title: 'title',
+}
+
 export const blogsRouter = Router({})
 	.get(
 		'',
@@ -92,7 +97,7 @@ export const blogsRouter = Router({})
 	.get(
 		'/:id/posts',
 		idParamsValidator,
-		paginationAndSortingValidation(blogsSortFields),
+		paginationAndSortingValidation(postsSortFields),
 		validation,
 		getPostsByBlogIdHandler
 	)
