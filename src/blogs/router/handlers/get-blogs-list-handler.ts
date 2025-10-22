@@ -10,6 +10,8 @@ export const getBlogsListHandler = async (req: Request, res: Response) => {
 		includeOptionals: true,
 	})
 
+	console.log(sanitizedQuery, 'sanitizedQuery')
+
 	const inputQuery = setDefaultSortAndPaginationIfNotExist(sanitizedQuery)
 
 	const blogs = await blogsService.findMany({

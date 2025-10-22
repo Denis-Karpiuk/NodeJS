@@ -7,12 +7,7 @@ import { validation } from '../../core/middlewares/validatation.middleware'
 import { idParamsValidator } from '../../core/middlewares/requiredId.middleWare'
 import { getPostsListHandler } from './handlers/get-blogs-list-handler'
 import { paginationAndSortingValidation } from '../../core/middlewares/query-pagination-sorting.validatiion-middleware'
-
-const postsSortFields = {
-	_id: '_id',
-	createdAt: 'createdAt',
-	title: 'title',
-}
+import { postsSortFields } from '../../blogs/router/blogs.router'
 
 export const postsRouter = Router({})
 	.get(
