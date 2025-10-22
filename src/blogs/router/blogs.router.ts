@@ -13,12 +13,13 @@ import { postByByBlogBodyValidator } from '../../posts/validationPostByBlogBody'
 import { getPostsByBlogIdHandler } from './handlers/get-blog-posts-by-id'
 
 const blogsSortFields = {
-	name: 'name',
+	_id: '_id',
 	createdAt: 'createdAt',
 	title: 'title',
 }
 
 const postsSortFields = {
+	_id: '_id',
 	createdAt: 'createdAt',
 	title: 'title',
 }

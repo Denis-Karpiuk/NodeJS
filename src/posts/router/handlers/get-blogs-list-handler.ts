@@ -13,6 +13,8 @@ export const getPostsListHandler = async (req: Request, res: Response) => {
 
 	const inputQuery = setDefaultSortAndPaginationIfNotExist(sanitizedQuery)
 
+	console.log(inputQuery, 'inputQuery')
+
 	const posts = await postsService.findMany({
 		...inputQuery,
 	})
