@@ -14,7 +14,7 @@ export const userBodyValidator = [
 		.trim()
 		.isString()
 		.withMessage('Поле password должно быть строкой')
-		.isLength({ min: 2, max: 20 })
+		.isLength({ min: 6, max: 20 })
 		.withMessage('Максимальная длина password — 20 символов'),
 
 	body('email')
