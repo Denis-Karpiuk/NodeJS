@@ -1,5 +1,3 @@
-// import {SortDirection} from 'mongodb'
-
 import { SortDirection } from './sort-direction'
 
 export type PaginationAndSorting<S> = {

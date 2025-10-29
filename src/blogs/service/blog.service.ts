@@ -1,4 +1,3 @@
-import { PaginationAndSorting } from '../../core/types/pagination-and-sorting'
 import { blogsRepository, BlogType } from '../repository/blogs.mongo.repository'
 
 export type BlogSearchParamsType = {
