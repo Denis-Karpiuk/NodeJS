@@ -6,7 +6,6 @@ export const authBodyValidator = [
 		.isString()
 		.withMessage('Поле login должно быть строкой'),
 
-	,
 	body('password')
 		.trim()
 		.isString()
