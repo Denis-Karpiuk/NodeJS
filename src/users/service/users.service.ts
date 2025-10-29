@@ -35,4 +35,8 @@ export const usersService = {
 
 		return { id: userId }
 	},
+
+	async deleteUser(id: string) {
+		return usersRepository.deleteUserById(id)
+	},
 }

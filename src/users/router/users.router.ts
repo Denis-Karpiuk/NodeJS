@@ -3,11 +3,41 @@ import { addUserHandler } from './handlers/addUserHandler'
 import { adminGuardMiddleware } from '../../core/middlewares/adminGuardMiddleware.middleware'
 import { userBodyValidator } from './middlewares/userBodyValidator'
 import { validation } from '../../core/middlewares/validatation.middleware'
+import { paginationAndSortingValidation } from '../../core/middlewares/query-pagination-sorting.validatiion-middleware'
+import { getAllUserHandler } from './handlers/getAllUserHandler'
+import { searchTermValidation } from '../../core/middlewares/search-term-validation'
+import { idParamsValidator } from '../../core/middlewares/requiredId.middleWare'
+import { deleteUserHandler } from './handlers/deleteUserHandler'
 
-export const usersRouter = Router({}).post(
-	'',
-	adminGuardMiddleware,
-	userBodyValidator,
-	validation,
-	addUserHandler
-)
+const usersSortFields = {
+	// _id: '_id',
+	createdAt: 'createdAt',
+	login: 'login',
+}
+
+export const usersRouter = Router({})
+	.get(
+		'',
+		adminGuardMiddleware,
+		searchTermValidation('searchLoginTerm'),
+		searchTermValidation('searchEmailTerm'),
+		paginationAndSortingValidation(usersSortFields),
+		validation,
+		getAllUserHandler
+	)
+
+	.post(
+		'',
+		adminGuardMiddleware,
+		userBodyValidator,
+		validation,
+		addUserHandler
+	)
+
+	.delete(
+		'/:id',
+		adminGuardMiddleware,
+		idParamsValidator,
+		validation,
+		deleteUserHandler
+	)

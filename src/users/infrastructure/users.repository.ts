@@ -1,3 +1,4 @@
+import { isValidObjectId } from 'mongoose'
 import { UsersModel } from '../../models/users.model'
 import { UserDBType } from '../types/user.db.type'
 
@@ -13,5 +14,13 @@ export const usersRepository = {
 		await newUser.save()
 
 		return newUser._id.toString()
+	},
+
+	async deleteUserById(id: string) {
+		if (!isValidObjectId(id)) {
+			return null
+		}
+
+		return await UsersModel.findByIdAndDelete(id)
 	},
 }
