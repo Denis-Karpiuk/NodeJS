@@ -6,7 +6,7 @@ export const usersRepository = {
 	async findByEmailOrLogin(emailOrLogin: string) {
 		return await UsersModel.findOne({
 			$or: [{ email: emailOrLogin }, { login: emailOrLogin }],
-		})
+		}).lean()
 	},
 
 	async create(user: UserDBType): Promise<string> {
