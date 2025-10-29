@@ -19,6 +19,6 @@ export const authRouter = Router({}).post(
 			})
 		}
 
-		res.status(HttpStatus.NoContent)
+		res.status(HttpStatus.NoContent).send(result)
 	}
 )
