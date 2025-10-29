@@ -1,4 +1,3 @@
-import { error } from 'console'
 import { usersRepository } from '../../users/infrastructure/users.repository'
 import { bcryptService } from './bcrypt.service'
 

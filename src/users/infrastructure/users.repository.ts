@@ -3,9 +3,9 @@ import { UsersModel } from '../../models/users.model'
 import { UserDBType } from '../types/user.db.type'
 
 export const usersRepository = {
-	async findByEmailOrLogin(emailOrLogin: string) {
+	async findByEmailOrLogin(loginOrEmail: string) {
 		return await UsersModel.findOne({
-			$or: [{ email: emailOrLogin }, { login: emailOrLogin }],
+			$or: [{ email: loginOrEmail }, { login: loginOrEmail }],
 		}).lean()
 	},
 
