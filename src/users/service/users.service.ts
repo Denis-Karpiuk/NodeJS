@@ -30,7 +30,7 @@ export const usersService = {
 			email,
 			login,
 			passwordHash,
-			createdAt: new Date().toISOString(),
+			createdAt: new Date(),
 		})
 
 		return { id: userId }

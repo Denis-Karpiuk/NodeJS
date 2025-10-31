@@ -1,9 +1,12 @@
+import { WithId } from 'mongodb'
 import { isValidObjectId } from 'mongoose'
 import { UsersModel } from '../../models/users.model'
 import { UserDBType } from '../types/user.db.type'
 
 export const usersRepository = {
-	async findByEmailOrLogin(loginOrEmail: string) {
+	async findByEmailOrLogin(
+		loginOrEmail: string
+	): Promise<WithId<UserDBType> | null> {
 		return await UsersModel.findOne({
 			$or: [{ email: loginOrEmail }, { login: loginOrEmail }],
 		}).lean()

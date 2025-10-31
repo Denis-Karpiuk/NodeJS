@@ -31,5 +31,5 @@ export const getPostsByBlogIdHandler = async (req: Request, res: Response) => {
 		res.status(HttpStatus.NotFound).send('Blog not found')
 	}
 
-	res.status(HttpStatus.Ok).send(posts)
+	res.status(HttpStatus.Success).send(posts)
 }

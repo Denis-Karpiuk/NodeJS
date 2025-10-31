@@ -23,7 +23,7 @@ export const postsRouter = Router({})
 			res.status(HttpStatus.NotFound).send('Post not found')
 		}
 
-		res.status(HttpStatus.Ok).send(post)
+		res.status(HttpStatus.Success).send(post)
 	})
 
 	.post(

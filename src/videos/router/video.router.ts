@@ -9,7 +9,7 @@ export const videoRouter = Router({})
 
 videoRouter
 	.get('', (_, res: Response) => {
-		res.status(HttpStatus.Ok).send(db)
+		res.status(HttpStatus.Success).send(db)
 	})
 
 	.get('/:id', (req: Request, res: Response) => {

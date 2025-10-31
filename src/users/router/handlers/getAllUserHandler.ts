@@ -18,5 +18,5 @@ export const getAllUserHandler = async (req: Request, res: Response) => {
 		searchEmailTerm: sanitizedQuery.searchEmailTerm,
 	})
 
-	return res.status(HttpStatus.Ok).send(users)
+	return res.status(HttpStatus.Success).send(users)
 }

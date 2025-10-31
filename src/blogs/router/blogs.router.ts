@@ -42,7 +42,7 @@ export const blogsRouter = Router({})
 			res.status(HttpStatus.NotFound).send('Blog not found')
 		}
 
-		res.status(HttpStatus.Ok).send(blog)
+		res.status(HttpStatus.Success).send(blog)
 	})
 
 	.post(

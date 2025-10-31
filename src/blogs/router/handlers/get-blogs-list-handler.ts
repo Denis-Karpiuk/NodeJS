@@ -17,5 +17,5 @@ export const getBlogsListHandler = async (req: Request, res: Response) => {
 		searchNameTerm: sanitizedQuery.searchNameTerm,
 	})
 
-	res.status(HttpStatus.Ok).send(blogs)
+	res.status(HttpStatus.Success).send(blogs)
 }

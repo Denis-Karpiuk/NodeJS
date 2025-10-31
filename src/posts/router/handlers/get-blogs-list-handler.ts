@@ -16,5 +16,5 @@ export const getPostsListHandler = async (req: Request, res: Response) => {
 		...inputQuery,
 	})
 
-	res.status(HttpStatus.Ok).send(posts)
+	res.status(HttpStatus.Success).send(posts)
 }
