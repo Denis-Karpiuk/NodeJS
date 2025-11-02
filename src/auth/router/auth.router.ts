@@ -2,10 +2,8 @@ import { Router } from 'express'
 import { validation } from '../../core/middlewares/validatation.middleware'
 import { authBodyValidator } from '../authBodyValidation'
 import { loginHandler } from './handlers/loginHandler'
+import { meHandler } from './handlers/meHandler'
 
-export const authRouter = Router({}).post(
-	'/login',
-	authBodyValidator,
-	validation,
-	loginHandler
-)
+export const authRouter = Router({})
+	.post('/login', authBodyValidator, validation, loginHandler)
+	.get('/me', meHandler)
