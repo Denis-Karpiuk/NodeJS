@@ -4,7 +4,7 @@ import { CommentModel } from '../../models/comments.model'
 import { CommentDbType } from '../types/comment.db.type'
 
 export const commentRepository = {
-	async addComment(comment: CommentDbType): Promise<Result<string>> {
+	async addOne(comment: CommentDbType): Promise<Result<string>> {
 		try {
 			const newComment = new CommentModel(comment)
 			const savedNewComment = await newComment.save()
@@ -24,8 +24,16 @@ export const commentRepository = {
 		}
 	},
 
-	async deleteCommentById(id: string): Promise<Result<string>> {
+	async deleteOne(id: string): Promise<Result<string>> {
 		try {
+			if (!id) {
+				return {
+					status: ResultStatus.NotFound,
+					data: '',
+					errorMessage: 'Comment not found',
+				}
+			}
+
 			const deletedComment = await CommentModel.findByIdAndDelete(id)
 
 			if (!deletedComment) {
@@ -39,6 +47,43 @@ export const commentRepository = {
 			return {
 				status: ResultStatus.Success,
 				data: 'Comment was deleted',
+				errorMessage: '',
+			}
+		} catch (error) {
+			return {
+				status: ResultStatus.Failure,
+				data: '',
+				errorMessage:
+					error instanceof Error ? error.message : 'Unknown error',
+			}
+		}
+	},
+
+	async updateOne(id: string, content: string): Promise<Result<string>> {
+		try {
+			if (!id) {
+				return {
+					status: ResultStatus.NotFound,
+					data: '',
+					errorMessage: 'Comment not found',
+				}
+			}
+
+			const updatedComment = await CommentModel.findByIdAndUpdate(id, {
+				content,
+			})
+
+			if (!updatedComment) {
+				return {
+					status: ResultStatus.NotFound,
+					data: '',
+					errorMessage: 'Comment not found',
+				}
+			}
+
+			return {
+				status: ResultStatus.Success,
+				data: 'Comment was updated',
 				errorMessage: '',
 			}
 		} catch (error) {

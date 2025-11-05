@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 import { commentRepository } from '../repository/comment.repository'
-import { CommentDto } from '../types/comment.dto'
+import { CommentDto, UpdateCommentDto } from '../types/comment.dto'
 
 export const commentService = {
 	addCommentByPostId: async (dto: CommentDto) => {
@@ -9,9 +9,13 @@ export const commentService = {
 			createdAt: new Date(),
 		}
 
-		return await commentRepository.addComment(newCommentBody)
+		return await commentRepository.addOne(newCommentBody)
 	},
 	deleteCommentById: async (id: string) => {
-		return await commentRepository.deleteCommentById(id)
+		return await commentRepository.deleteOne(id)
+	},
+
+	updateCommentById: async (dto: UpdateCommentDto) => {
+		return await commentRepository.updateOne(dto.id, dto.content)
 	},
 }

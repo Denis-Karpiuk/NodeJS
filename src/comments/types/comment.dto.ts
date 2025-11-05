@@ -6,3 +6,8 @@ export type CommentDto = {
 		userLogin: string
 	}
 }
+
+export type UpdateCommentDto = {
+	content: string
+	id: string
+}
