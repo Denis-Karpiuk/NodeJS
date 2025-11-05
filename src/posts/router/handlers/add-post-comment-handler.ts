@@ -1,9 +1,9 @@
 import { Request, Response } from 'express'
+import { commentQwRepository } from '../../../comments/repository/comment.query.repository'
 import { commentService } from '../../../comments/services/comment.service'
-import { HttpStatus } from '../../../core/types/http-statuses'
 import { ResultStatus } from '../../../core/result/resultStatus'
 import { resultCodeToHttpException } from '../../../core/result/resultStatusToHttpCode'
-import { commentQwRepository } from '../../../comments/repository/comment.query.repository'
+import { HttpStatus } from '../../../core/types/http-statuses'
 
 export const addPostCommentHandler = async (req: Request, res: Response) => {
 	const user = req.context!.user!
@@ -18,6 +18,10 @@ export const addPostCommentHandler = async (req: Request, res: Response) => {
 	}
 
 	const result = await commentService.addCommentByPostId(commentDto)
+
+	if (result.status === ResultStatus.NotFound) {
+		return res.status(HttpStatus.NotFound).send('Post not found')
+	}
 
 	if (result.status !== ResultStatus.Success) {
 		return res
