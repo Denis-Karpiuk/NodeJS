@@ -17,5 +17,5 @@ export const deleteCommentHandler = async (req: Request, res: Response) => {
 			.send({ errorsMessages: result.extensions })
 	}
 
-	res.status(HttpStatus.Success).send(result.data)
+	res.status(HttpStatus.NoContent).send(result.data)
 }
