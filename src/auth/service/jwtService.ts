@@ -10,7 +10,9 @@ export const jwtService = {
 		userId: string
 		login: string
 	}): Promise<string> => {
-		return jwt.sign({ userId, login }, appConfig.AC_SECRET, {})
+		return jwt.sign({ userId, login }, appConfig.AC_SECRET, {
+			expiresIn: '1h',
+		})
 	},
 
 	decodeToken: async (token: string): Promise<any> => {
