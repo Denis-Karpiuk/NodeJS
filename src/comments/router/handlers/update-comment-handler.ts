@@ -9,7 +9,7 @@ export const updateCommentHandler = async (req: Request, res: Response) => {
 
 	const result = await commentService.updateCommentById({
 		id,
-		content: req.body,
+		...req.body,
 	})
 
 	if (result.status !== ResultStatus.Success) {

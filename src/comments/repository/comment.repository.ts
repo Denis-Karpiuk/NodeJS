@@ -69,9 +69,13 @@ export const commentRepository = {
 				}
 			}
 
-			const updatedComment = await CommentModel.findByIdAndUpdate(id, {
-				content,
-			})
+			const updatedComment = await CommentModel.findByIdAndUpdate(
+				id,
+				{
+					content,
+				},
+				{ new: true }
+			)
 
 			if (!updatedComment) {
 				return {
