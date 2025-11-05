@@ -1,11 +1,12 @@
-import { Request, Response } from 'express'
+import { Request, Response, NextFunction } from 'express'
 import { HttpStatus } from '../../core/types/http-statuses'
 import { commentQwRepository } from '../repository/comment.query.repository'
 import { createErrorMessages } from '../../core/utils/createError'
 
 export const ruleEditCommentValidation = async (
 	req: Request,
-	res: Response
+	res: Response,
+	next: NextFunction
 ) => {
 	const id = req.params.id
 
@@ -20,4 +21,6 @@ export const ruleEditCommentValidation = async (
 	if (comment.data?.commentatorInfo.userId !== user?.id) {
 		return res.status(HttpStatus.Forbidden).send('Access denied')
 	}
+
+	next()
 }
