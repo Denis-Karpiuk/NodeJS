@@ -7,6 +7,7 @@ import { idParamsValidator } from '../../core/middlewares/requiredId.middleWare'
 import { commentBodyValidator } from '../commentBodyValidation'
 import { validation } from '../../core/middlewares/validatation.middleware'
 import { authBearerMiddleware } from '../../core/middlewares/authBearerMiddleWare'
+import { ruleEditCommentValidation } from './rule-validation'
 
 export const commentsRouter = Router({})
 	.get('/:id', idParamsValidator, validation, getCommentHandler)
@@ -14,7 +15,7 @@ export const commentsRouter = Router({})
 	.put(
 		'/:id',
 		authBearerMiddleware,
-		idParamsValidator,
+		ruleEditCommentValidation,
 		commentBodyValidator,
 		validation,
 		updateCommentHandler
@@ -23,7 +24,7 @@ export const commentsRouter = Router({})
 	.delete(
 		'/:id',
 		authBearerMiddleware,
-		idParamsValidator,
+		ruleEditCommentValidation,
 		validation,
 		deleteCommentHandler
 	)
