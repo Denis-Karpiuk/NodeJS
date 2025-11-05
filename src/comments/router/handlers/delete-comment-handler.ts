@@ -11,8 +11,6 @@ export const deleteCommentHandler = async (req: Request, res: Response) => {
 	const result = await commentService.deleteCommentById(id)
 
 	if (result.status !== ResultStatus.Success) {
-		console.log(resultCodeToHttpException(result.status), 'result.status')
-
 		return res
 			.status(resultCodeToHttpException(result.status))
 			.send({ errorsMessages: result.extensions })

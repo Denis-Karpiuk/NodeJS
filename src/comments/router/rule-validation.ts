@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import { HttpStatus } from '../../core/types/http-statuses'
 import { commentQwRepository } from '../repository/comment.query.repository'
 import { createErrorMessages } from '../../core/utils/createError'
+import { ResultStatus } from '../../core/result/resultStatus'
 
 export const ruleEditCommentValidation = async (
 	req: Request,
@@ -16,9 +17,13 @@ export const ruleEditCommentValidation = async (
 
 	const user = req.context?.user
 
-	const comment = await commentQwRepository.findById(id)
+	const result = await commentQwRepository.findById(id)
 
-	if (comment.data?.commentatorInfo.userId !== user?.id) {
+	if (result.status === ResultStatus.NotFound) {
+		return res.status(HttpStatus.NotFound).send('Comment not found')
+	}
+
+	if (result.data?.commentatorInfo.userId !== user?.id) {
 		return res.status(HttpStatus.Forbidden).send('Access denied')
 	}
 
