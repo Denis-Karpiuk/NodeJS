@@ -8,6 +8,10 @@ import { idParamsValidator } from '../../core/middlewares/requiredId.middleWare'
 import { getPostsListHandler } from './handlers/get-blogs-list-handler'
 import { paginationAndSortingValidation } from '../../core/middlewares/query-pagination-sorting.validatiion-middleware'
 import { postsSortFields } from '../../blogs/router/blogs.router'
+import { addPostCommentHandler } from './handlers/add-post-comment-handler'
+import { authBearerMiddleware } from '../../core/middlewares/authBearerMiddleWare'
+import { commentBodyValidator } from '../../comments/commentBodyValidation'
+import { getPostCommentsHandler } from './handlers/get-post-comments'
 
 export const postsRouter = Router({})
 	.get(
@@ -80,4 +84,22 @@ export const postsRouter = Router({})
 				`Post ${req.params.id} was deleted`
 			)
 		}
+	)
+
+	.post(
+		'/:id/comments',
+		authBearerMiddleware,
+		commentBodyValidator,
+		validation,
+		addPostCommentHandler
+	)
+
+	.get(
+		'/:id/comments',
+		idParamsValidator,
+		paginationAndSortingValidation({
+			createdAt: 'createdAt',
+		}),
+		validation,
+		getPostCommentsHandler
 	)

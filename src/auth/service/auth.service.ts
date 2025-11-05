@@ -28,9 +28,10 @@ export const authService = {
 			}
 		}
 
-		const accessToken = await jwtService.createToken(
-			result.data!._id.toString()
-		)
+		const accessToken = await jwtService.createToken({
+			userId: result.data!._id.toString(),
+			login: result.data!.login,
+		})
 
 		return {
 			status: ResultStatus.Success,

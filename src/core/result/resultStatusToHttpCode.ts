@@ -12,6 +12,12 @@ export const resultCodeToHttpException = (resultCode: ResultStatus): number => {
 		case ResultStatus.Unauthorized:
 			return HttpStatus.Unauthorized
 
+		case ResultStatus.Failure:
+			return HttpStatus.InternalServerError
+
+		case ResultStatus.NotFound:
+			return HttpStatus.NotFound
+
 		default:
 			return HttpStatus.InternalServerError
 	}

@@ -10,7 +10,6 @@ import { idParamsValidator } from '../../core/middlewares/requiredId.middleWare'
 import { deleteUserHandler } from './handlers/deleteUserHandler'
 
 const usersSortFields = {
-	// _id: '_id',
 	createdAt: 'createdAt',
 	login: 'login',
 }

@@ -3,6 +3,7 @@ import { PostsModel } from '../../models/posts.model'
 import { newPostBodyType } from '../dto/input.post.dto'
 import { BlogsModel } from '../../models/blogs.model'
 import { SortDirection } from '../../core/types/sort-direction'
+import { skipItems } from '../../core/utils/skipItmes'
 
 export const postsRepository = {
 	async findMany({
@@ -12,7 +13,7 @@ export const postsRepository = {
 		sortDirection,
 		blogId,
 	}: any): Promise<any> {
-		const skip = (pageNumber - 1) * pageSize
+		const skip = skipItems(pageNumber, pageSize)
 
 		const findFilter: any = {}
 
