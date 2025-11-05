@@ -5,7 +5,7 @@ import { blogsRouter } from './blogs/router/blogs.router'
 import { postsRouter } from './posts/router/posts.router'
 import { authRouter } from './auth/router/auth.router'
 import { usersRouter } from './users/router/users.router'
-import { commentsRouter } from './comments/repository/router/comments.router'
+import { commentsRouter } from './comments/router/comments.router'
 
 export const setupApp = (app: Express) => {
 	app.use(express.json()) // middleware для парсинга JSON в теле запроса

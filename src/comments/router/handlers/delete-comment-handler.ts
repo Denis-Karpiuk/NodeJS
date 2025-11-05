@@ -1,8 +1,8 @@
 import { Request, Response } from 'express'
-import { HttpStatus } from '../../../../core/types/http-statuses'
-import { commentService } from '../../../services/comment.service'
-import { ResultStatus } from '../../../../core/result/resultStatus'
-import { resultCodeToHttpException } from '../../../../core/result/resultStatusToHttpCode'
+import { commentService } from '../../services/comment.service'
+import { ResultStatus } from '../../../core/result/resultStatus'
+import { resultCodeToHttpException } from '../../../core/result/resultStatusToHttpCode'
+import { HttpStatus } from '../../../core/types/http-statuses'
 
 export const deleteCommentHandler = async (req: Request, res: Response) => {
 	const id = req.params.id

@@ -33,5 +33,5 @@ export const addPostCommentHandler = async (req: Request, res: Response) => {
 			.send({ errorsMessages: comment.extensions })
 	}
 
-	res.status(HttpStatus.Success).send(comment.data)
+	res.status(HttpStatus.Created).send(comment.data)
 }

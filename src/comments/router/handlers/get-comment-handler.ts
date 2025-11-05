@@ -1,8 +1,8 @@
 import { Request, Response } from 'express'
-import { HttpStatus } from '../../../../core/types/http-statuses'
-import { commentQwRepository } from '../../comment.query.repository'
-import { resultCodeToHttpException } from '../../../../core/result/resultStatusToHttpCode'
-import { ResultStatus } from '../../../../core/result/resultStatus'
+import { commentQwRepository } from '../../repository/comment.query.repository'
+import { ResultStatus } from '../../../core/result/resultStatus'
+import { resultCodeToHttpException } from '../../../core/result/resultStatusToHttpCode'
+import { HttpStatus } from '../../../core/types/http-statuses'
 
 export const getCommentHandler = async (req: Request, res: Response) => {
 	const id = req.params.id
