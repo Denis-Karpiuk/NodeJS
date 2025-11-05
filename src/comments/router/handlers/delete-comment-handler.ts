@@ -8,22 +8,6 @@ import { commentQwRepository } from '../../repository/comment.query.repository'
 export const deleteCommentHandler = async (req: Request, res: Response) => {
 	const id = req.params.id
 
-	if (!id) {
-		return res.status(HttpStatus.NotFound).send({
-			errorsMessages: ['Comment not found'],
-		})
-	}
-
-	const user = req.context?.user
-
-	const comment = await commentQwRepository.findById(id)
-
-	if (comment.data?.commentatorInfo.userId !== user?.id) {
-		return res.status(HttpStatus.Forbidden).send({
-			errorsMessages: ['You are not allowed to update this comment'],
-		})
-	}
-
 	const result = await commentService.deleteCommentById(id)
 
 	if (result.status !== ResultStatus.Success) {
