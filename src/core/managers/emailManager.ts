@@ -11,4 +11,13 @@ export const emailManager = {
 
 		return result
 	},
+
+	async sendVerifiedEmail(email: string) {
+		const result = await emailAdapter.sendEmail(
+			email,
+			'Success verified email',
+			authEmails.verifiedEmailSuccess()
+		)
+		return result
+	},
 }

@@ -5,6 +5,10 @@ export const authEmails = {
                   <a href='https://somesite.com/confirm-email?code=${code}'>complete registration</a>
               </p>`
 	},
+	verifiedEmailSuccess() {
+		return ` <h1>Email verified</h1>
+               <p>Email successfully verified</p>`
+	},
 	passwordRecoveryEmail(code: string) {
 		return `<h1>Password recovery</h1>
         <p>To finish password recovery please follow the link below:

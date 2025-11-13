@@ -41,4 +41,23 @@ export const usersRepository = {
 
 		return false
 	},
+
+	async findByConfirmationCode(
+		confirmationCode: string
+	): Promise<WithId<UserDBType> | null> {
+		const result = await UsersModel.findOne({
+			'emailConfirmation.confirmationCode': confirmationCode,
+		}).lean()
+
+		return result as WithId<UserDBType> | null
+	},
+
+	async updateUser(
+		id: string,
+		body: Partial<UserDBType>
+	): Promise<WithId<UserDBType> | null> {
+		return await UsersModel.findOneAndUpdate({ _id: id }, body, {
+			new: true,
+		})
+	},
 }

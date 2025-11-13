@@ -17,7 +17,7 @@ export class User {
 		this.passwordHash = hash
 		this.createdAt = new Date()
 		this.emailConfirmation = {
-			expirationDate: new Date(),
+			expirationDate: new Date(Date.now() + 2 * 60 * 1000),
 			confirmationCode: randomUUID(),
 			isConfirmed: false,
 		}

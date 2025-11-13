@@ -1,14 +1,13 @@
-import { ObjectId, WithId } from 'mongodb'
+import { WithId } from 'mongodb'
+import { emailManager } from '../../core/managers/emailManager'
 import { Result } from '../../core/result/result.type'
 import { ResultStatus } from '../../core/result/resultStatus'
 import { usersRepository } from '../../users/infrastructure/users.repository'
+import { User } from '../../users/service/user.entity'
 import { CreateUserDto } from '../../users/types/create.user.dto'
 import { UserDBType } from '../../users/types/user.db.type'
 import { bcryptService } from './bcrypt.service'
 import { jwtService } from './jwtService'
-import { usersQueryRepository } from '../../users/infrastructure/users.query.repository'
-import { emailManager } from '../../core/managers/emailManager'
-import { User } from '../../users/service/user.entity'
 
 export const authService = {
 	async registration({
@@ -50,6 +49,75 @@ export const authService = {
 		return {
 			status: ResultStatus.Success,
 			data: newUser,
+			errorMessage: '',
+		}
+	},
+
+	async registrationConfirmation(code: string): Promise<Result<string>> {
+		const userByConfirmationCode =
+			await usersRepository.findByConfirmationCode(code)
+
+		if (!userByConfirmationCode) {
+			return {
+				status: ResultStatus.BadRequest,
+				extensions: [
+					{
+						field: 'confirmationCode',
+						message: 'User not found',
+					},
+				],
+				errorMessage: 'Bad Request',
+			}
+		}
+
+		const isConfirmed = userByConfirmationCode.emailConfirmation.isConfirmed
+
+		if (isConfirmed) {
+			return {
+				status: ResultStatus.BadRequest,
+				extensions: [
+					{
+						field: 'confirmationCode',
+						message: 'User already confirmed',
+					},
+				],
+				errorMessage: 'Bad Request',
+			}
+		}
+
+		const expirationData =
+			userByConfirmationCode.emailConfirmation.expirationDate
+
+		if (expirationData < new Date()) {
+			return {
+				status: ResultStatus.BadRequest,
+				extensions: [
+					{
+						field: 'confirmationCode',
+						message: 'Confirmation code expired',
+					},
+				],
+				errorMessage: 'Bad Request',
+			}
+		}
+
+		await usersRepository.updateUser(
+			userByConfirmationCode._id.toString(),
+			{
+				emailConfirmation: {
+					...userByConfirmationCode.emailConfirmation,
+					isConfirmed: true,
+				},
+			}
+		)
+
+		emailManager
+			.sendVerifiedEmail(userByConfirmationCode.email)
+			.catch(err => console.log('Error sending email', err))
+
+		return {
+			status: ResultStatus.Success,
+			data: 'Success confirmation email',
 			errorMessage: '',
 		}
 	},
