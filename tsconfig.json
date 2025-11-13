@@ -12,7 +12,8 @@
   },
   "include": [
     "src/**/*",
-    "src/core/types/index.d.ts"
+    "src/core/types/index.d.ts",
+    "src/core/middlewares/.ts"
   ],
   "exclude": [
     "__tests__",

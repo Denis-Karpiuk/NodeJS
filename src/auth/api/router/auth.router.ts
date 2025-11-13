@@ -7,6 +7,8 @@ import { registrationHandler } from './handlers/registrationHandler'
 import { userBodyValidator } from '../../../core/middlewares/userBodyValidator'
 import { registrationConfirmationHandler } from './handlers/registrationConfirmationHandler'
 import { validateConfirmationBody } from '../../../core/middlewares/validateConfirmationBody'
+import { registrationEmailResendingHandler } from './handlers/registrationEmailResendingHandler'
+import { validateEmail } from '../../../core/middlewares/validateEmail'
 
 export const authRouter = Router({})
 	.post('/login', authBodyValidator, validation, loginHandler)
@@ -17,4 +19,10 @@ export const authRouter = Router({})
 		validateConfirmationBody,
 		validation,
 		registrationConfirmationHandler
+	)
+	.post(
+		'/registration-email-resending',
+		validateEmail,
+		validation,
+		registrationEmailResendingHandler
 	)

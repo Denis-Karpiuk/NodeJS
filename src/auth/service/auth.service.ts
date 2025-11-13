@@ -8,6 +8,7 @@ import { CreateUserDto } from '../../users/types/create.user.dto'
 import { UserDBType } from '../../users/types/user.db.type'
 import { bcryptService } from './bcrypt.service'
 import { jwtService } from './jwtService'
+import { randomUUID } from 'crypto'
 
 export const authService = {
 	async registration({
@@ -187,5 +188,42 @@ export const authService = {
 		}
 
 		return { status: ResultStatus.Success, data: user, errorMessage: '' }
+	},
+
+	async registrationEmailResending(email: string): Promise<Result<string>> {
+		const user = await usersRepository.findByEmailOrLogin(email)
+
+		if (!user) {
+			return {
+				status: ResultStatus.BadRequest,
+				extensions: [
+					{
+						field: 'email',
+						message: 'User not found',
+					},
+				],
+				errorMessage: 'Bad Request',
+			}
+		}
+
+		const confirmationCode = randomUUID()
+
+		await usersRepository.updateUser(user._id.toString(), {
+			emailConfirmation: {
+				...user.emailConfirmation,
+				confirmationCode,
+				expirationDate: new Date(Date.now() + 2 * 60 * 1000),
+			},
+		})
+
+		emailManager
+			.sendConfirmationCode(user.email, confirmationCode)
+			.catch(err => console.log('Error sending email', err))
+
+		return {
+			status: ResultStatus.Success,
+			data: 'Success',
+			errorMessage: '',
+		}
 	},
 }
