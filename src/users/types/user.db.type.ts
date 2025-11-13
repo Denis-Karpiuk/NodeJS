@@ -3,4 +3,9 @@ export type UserDBType = {
 	login: string
 	passwordHash: string
 	createdAt: Date
+	emailConfirmation: {
+		confirmationCode: string
+		expirationDate: Date
+		isConfirmed: boolean
+	}
 }

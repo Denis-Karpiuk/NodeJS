@@ -31,6 +31,11 @@ export const usersService = {
 			login,
 			passwordHash,
 			createdAt: new Date(),
+			emailConfirmation: {
+				confirmationCode: 'code',
+				expirationDate: new Date(),
+				isConfirmed: true,
+			},
 		})
 
 		return { id: userId }

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
-import { HttpStatus } from '../../../core/types/http-statuses'
-import { usersQueryRepository } from '../../../users/infrastructure/users.query.repository'
-import { jwtService } from '../../service/jwtService'
+import { HttpStatus } from '../../../../core/types/http-statuses'
+import { usersQueryRepository } from '../../../../users/infrastructure/users.query.repository'
+import { jwtService } from '../../../service/jwtService'
 
 export const meHandler = async (req: Request, res: Response) => {
 	const authorization = req.headers.authorization

@@ -7,9 +7,11 @@ export const usersRepository = {
 	async findByEmailOrLogin(
 		loginOrEmail: string
 	): Promise<WithId<UserDBType> | null> {
-		return await UsersModel.findOne({
+		const result = await UsersModel.findOne({
 			$or: [{ email: loginOrEmail }, { login: loginOrEmail }],
 		}).lean()
+
+		return result as WithId<UserDBType> | null
 	},
 
 	async create(user: UserDBType): Promise<string> {
@@ -25,5 +27,18 @@ export const usersRepository = {
 		}
 
 		return await UsersModel.findByIdAndDelete(id)
+	},
+
+	async doesExistByLoginOrEmail(
+		login: string,
+		email: string
+	): Promise<boolean> {
+		const resultByLogin = await this.findByEmailOrLogin(login)
+		if (resultByLogin) return true
+
+		const resultByEmail = await this.findByEmailOrLogin(email)
+		if (resultByEmail) return true
+
+		return false
 	},
 }
