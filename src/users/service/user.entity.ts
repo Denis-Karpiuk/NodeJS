@@ -5,6 +5,7 @@ export class User {
 	email: string
 	passwordHash: string
 	createdAt: Date
+	confirmationCode: string
 	emailConfirmation: {
 		confirmationCode: string
 		expirationDate: Date
@@ -16,9 +17,10 @@ export class User {
 		this.email = email
 		this.passwordHash = hash
 		this.createdAt = new Date()
+		this.confirmationCode = randomUUID()
 		this.emailConfirmation = {
 			expirationDate: new Date(Date.now() + 2 * 60 * 1000),
-			confirmationCode: randomUUID(),
+			confirmationCode: this.confirmationCode,
 			isConfirmed: false,
 		}
 	}
