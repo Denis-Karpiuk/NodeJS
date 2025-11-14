@@ -16,20 +16,29 @@ export const authService = {
 		login,
 		password,
 	}: CreateUserDto): Promise<Result<User | null>> {
-		const existUser = await usersRepository.doesExistByLoginOrEmail(
-			login,
-			email
-		)
+		const userByLogin = await usersRepository.findByEmailOrLogin(login)
+		const userByEmail = await usersRepository.findByEmailOrLogin(email)
 
-		if (existUser) {
+		if (userByLogin || userByEmail) {
+			const extensions: Array<{ field: string; message: string }> = []
+
+			if (userByLogin) {
+				extensions.push({
+					field: 'login',
+					message: 'Already Registered',
+				})
+			}
+
+			if (userByEmail) {
+				extensions.push({
+					field: 'email',
+					message: 'Already Registered',
+				})
+			}
+
 			return {
 				status: ResultStatus.BadRequest,
-				extensions: [
-					{
-						field: 'loginOrEmail',
-						message: 'Already Registered',
-					},
-				],
+				extensions,
 				errorMessage: 'Bad Request',
 			}
 		}
@@ -63,7 +72,7 @@ export const authService = {
 				status: ResultStatus.BadRequest,
 				extensions: [
 					{
-						field: 'confirmationCode',
+						field: 'code',
 						message: 'User not found',
 					},
 				],
@@ -78,7 +87,7 @@ export const authService = {
 				status: ResultStatus.BadRequest,
 				extensions: [
 					{
-						field: 'confirmationCode',
+						field: 'code',
 						message: 'User already confirmed',
 					},
 				],
@@ -94,7 +103,7 @@ export const authService = {
 				status: ResultStatus.BadRequest,
 				extensions: [
 					{
-						field: 'confirmationCode',
+						field: 'code',
 						message: 'Confirmation code expired',
 					},
 				],
@@ -187,6 +196,19 @@ export const authService = {
 			}
 		}
 
+		const isConfirmed = user.emailConfirmation.isConfirmed
+
+		if (!isConfirmed) {
+			return {
+				status: ResultStatus.Unauthorized,
+				data: null,
+				errorMessage: 'Unauthorized',
+				extensions: [
+					{ field: 'loginOrEmail', message: 'Email not confirmed' },
+				],
+			}
+		}
+
 		return { status: ResultStatus.Success, data: user, errorMessage: '' }
 	},
 
@@ -200,6 +222,21 @@ export const authService = {
 					{
 						field: 'email',
 						message: 'User not found',
+					},
+				],
+				errorMessage: 'Bad Request',
+			}
+		}
+
+		const isConfirmed = user.emailConfirmation.isConfirmed
+
+		if (isConfirmed) {
+			return {
+				status: ResultStatus.BadRequest,
+				extensions: [
+					{
+						field: 'email',
+						message: 'Email already confirmed',
 					},
 				],
 				errorMessage: 'Bad Request',
