@@ -1,4 +1,5 @@
 import { body } from 'express-validator'
+import { validateEmail } from './validateEmail'
 
 export const userBodyValidator = [
 	body('login')
@@ -17,12 +18,5 @@ export const userBodyValidator = [
 		.isLength({ min: 6, max: 20 })
 		.withMessage('Максимальная длина password — 20 символов'),
 
-	body('email')
-		.trim()
-		.isString()
-		.withMessage('Поле email должно быть строкой')
-		.matches(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)
-		.withMessage(
-			'Неверный формат email, должен быть в формате example@example.com'
-		),
+	validateEmail,
 ]
