@@ -13,7 +13,7 @@ export const loginHandler = async (req: Request, res: Response) => {
 			.send({ errorsMessages: result.extensions })
 	}
 
-	res.status(HttpStatus.Success).send({
+	return res.status(HttpStatus.Success).send({
 		accessToken: result.data!.accessToken,
 	})
 }

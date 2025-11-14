@@ -29,5 +29,5 @@ export const meHandler = async (req: Request, res: Response) => {
 		userId: result.id,
 	}
 
-	res.status(HttpStatus.Success).send(me)
+	return res.status(HttpStatus.Success).send(me)
 }
