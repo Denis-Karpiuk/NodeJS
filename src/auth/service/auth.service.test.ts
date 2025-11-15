@@ -128,6 +128,9 @@ describe('AUTH-INTEGRATION', () => {
 
 			const user = new User(login, email, password)
 			user.emailConfirmation.confirmationCode = code
+			user.emailConfirmation.expirationDate = new Date(
+				Date.now() + 2 * 60 * 1000
+			) // 2 minutes in the future
 
 			await usersRepository.create(user)
 
