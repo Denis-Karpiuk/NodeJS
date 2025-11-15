@@ -2,7 +2,7 @@ import { ResultStatus } from './resultStatus'
 
 export type Result<T = null> = {
 	status: ResultStatus
-	errorMessage: string
+	errorMessage?: string
 	extensions?: ExtensionType[]
 	data?: T
 }

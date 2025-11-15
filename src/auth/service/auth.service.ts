@@ -59,7 +59,7 @@ export const authService = {
 		return {
 			status: ResultStatus.Success,
 			data: newUser,
-			errorMessage: '',
+			extensions: [],
 		}
 	},
 
@@ -128,7 +128,7 @@ export const authService = {
 		return {
 			status: ResultStatus.Success,
 			data: 'Success confirmation email',
-			errorMessage: '',
+			extensions: [],
 		}
 	},
 
@@ -159,7 +159,7 @@ export const authService = {
 		return {
 			status: ResultStatus.Success,
 			data: { accessToken },
-			errorMessage: '',
+			extensions: [],
 		}
 	},
 
@@ -209,7 +209,7 @@ export const authService = {
 			}
 		}
 
-		return { status: ResultStatus.Success, data: user, errorMessage: '' }
+		return { status: ResultStatus.Success, data: user, extensions: [] }
 	},
 
 	async registrationEmailResending(email: string): Promise<Result<string>> {
@@ -260,7 +260,7 @@ export const authService = {
 		return {
 			status: ResultStatus.Success,
 			data: 'Success',
-			errorMessage: '',
+			extensions: [],
 		}
 	},
 }
