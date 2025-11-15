@@ -15,5 +15,6 @@ export const registrationHandler = async (req: Request, res: Response) => {
 			.send({ errorsMessages: result.extensions })
 	}
 
-	return res.status(HttpStatus.NoContent).send(result.data)
+	// return res.status(HttpStatus.NoContent).send(result.data)
+	return res.sendStatus(HttpStatus.NoContent)
 }
