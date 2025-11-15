@@ -1,5 +1,4 @@
 import express, { Express } from 'express'
-import { videoRouter } from './videos/router/video.router'
 import { testingRouter } from './testRouter/testRouter'
 import { blogsRouter } from './blogs/router/blogs.router'
 import { postsRouter } from './posts/router/posts.router'
@@ -18,7 +17,6 @@ export const setupApp = (app: Express) => {
 
 	app.use('/api/auth', authRouter)
 	app.use('/api/users', usersRouter)
-	app.use('/api/videos', videoRouter)
 	app.use('/api/blogs', blogsRouter)
 	app.use('/api/posts', postsRouter)
 	app.use('/api/comments', commentsRouter)
