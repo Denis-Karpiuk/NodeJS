@@ -32,7 +32,7 @@ export const emailAdapter2 = {
 	},
 }
 
-export const emailAdapter1 = {
+export const emailAdapter = {
 	sendEmail: async (
 		emailAddress: string,
 		subject: string,
