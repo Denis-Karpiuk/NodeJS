@@ -6,6 +6,8 @@ import { emailAdapter } from '../../core/adapters/emailAdapter'
 import { usersService } from '../../users/service/users.service'
 import { User } from '../../users/service/user.entity'
 import { usersRepository } from '../../users/infrastructure/users.repository'
+import { UsersModel } from '../../models/users.model'
+import { add } from 'date-fns'
 
 const testSeeder = {
 	createUserDto: () => {
@@ -54,7 +56,8 @@ describe('AUTH-INTEGRATION', () => {
 	})
 
 	describe('Create user', () => {
-		beforeEach(() => {
+		beforeEach(async () => {
+			await UsersModel.deleteMany({})
 			jest.spyOn(emailAdapter, 'sendEmail').mockResolvedValue(true)
 		})
 
@@ -72,6 +75,25 @@ describe('AUTH-INTEGRATION', () => {
 			expect(result.status).toBe(ResultStatus.Success)
 			expect(emailAdapter.sendEmail).toHaveBeenCalled()
 			expect(emailAdapter.sendEmail).toHaveBeenCalledTimes(1)
+		})
+
+		it('should return confirmation code when user is registered', async () => {
+			const { login, password, email } = testSeeder.createUserDto()
+
+			const result = await registerUserUseCase({ login, password, email })
+
+			expect(result.status).toBe(ResultStatus.Success)
+			expect(result.data).toBeDefined()
+			expect(result.data).toBeInstanceOf(User)
+			expect(
+				result.data?.emailConfirmation?.confirmationCode
+			).toBeDefined()
+			expect(result.data?.emailConfirmation?.confirmationCode).toEqual(
+				expect.any(String)
+			)
+			expect(
+				result.data?.emailConfirmation?.confirmationCode.length
+			).toBeGreaterThan(0)
 		})
 
 		it('should not register user twice', async () => {
@@ -128,11 +150,11 @@ describe('AUTH-INTEGRATION', () => {
 
 			const user = new User(login, email, password)
 			user.emailConfirmation.confirmationCode = code
-			user.emailConfirmation.expirationDate = new Date(
-				Date.now() + 2 * 60 * 1000
-			) // 2 minutes in the future
-
-			await usersRepository.create(user)
+			;((user.emailConfirmation.expirationDate = add(new Date(), {
+				hours: 1,
+				minutes: 30,
+			})),
+				await usersRepository.create(user))
 
 			const result = await confirmEmailUseCase(code)
 
