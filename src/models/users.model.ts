@@ -6,7 +6,6 @@ const UsersSchema = new Schema(
 		login: { type: String, required: true },
 		passwordHash: { type: String, required: true },
 		createdAt: { type: Date, default: new Date().toISOString() },
-		confirmationCode: { type: String, default: '' },
 		emailConfirmation: {
 			confirmationCode: { type: String, default: '' },
 			expirationDate: { type: Date, required: true },
