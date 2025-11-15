@@ -1,9 +1,43 @@
-import { InputBlogDto } from '../blogs/dto/input.blog.dto'
-import { InputPostDto } from '../posts/dto/input.post.dto'
-import { InputVideoDto } from '../videos/dto/input.videol-dto'
+import mongoose from 'mongoose'
+import dotenv from 'dotenv'
+dotenv.config()
 
-export let db: InputVideoDto[] = []
+export const db = {
+	async run(url?: string) {
+		try {
+			await mongoose.connect(url || process.env.MONGO_URI || '')
+			console.info('MongoDB connected successfully')
+		} catch (err) {
+			console.error(`MongoDB connection error: ${err}`)
+			process.exit(1)
+		}
 
-export let blogsDB: InputBlogDto[] = []
+		// Обработчики событий подключения
+		mongoose.connection.on('connected', () => {
+			console.info('Mongoose connected to DB')
+		})
 
-export let postsDB: InputPostDto[] = []
+		mongoose.connection.on('error', err => {
+			console.error(`MongoDB connection error: ${err}`)
+		})
+
+		mongoose.connection.on('disconnected', () => {
+			console.info('Mongoose disconnected')
+		})
+
+		// Graceful shutdown
+		process.on('SIGINT', async () => {
+			await mongoose.connection.close()
+			console.info('Mongoose connection closed due to app termination')
+			process.exit(0)
+		})
+	},
+
+	async drop() {
+		await mongoose.connection.dropDatabase()
+	},
+
+	async stop() {
+		await mongoose.connection.close()
+	},
+}

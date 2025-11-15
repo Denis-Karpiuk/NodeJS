@@ -1,6 +1,6 @@
 import express from 'express'
 import { setupApp } from './setup-app'
-import { connectDB } from './core/connectDB'
+import { db } from './db/db'
 
 // создание приложения
 
@@ -11,7 +11,7 @@ const appStarter = async () => {
 	// порт приложения
 	const PORT = process.env.PORT || 5001
 
-	await connectDB()
+	await db.run()
 
 	// запуск приложения
 	app.listen(PORT, () => {
