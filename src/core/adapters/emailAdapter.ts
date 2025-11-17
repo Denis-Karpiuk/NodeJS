@@ -15,7 +15,7 @@ export const transport = nodemailer.createTransport({
 	},
 })
 
-export const emailAdapter2 = {
+export const emailAdapter = {
 	sendEmail: async (
 		emailAddress: string,
 		subject: string,
@@ -32,7 +32,7 @@ export const emailAdapter2 = {
 	},
 }
 
-export const emailAdapter = {
+export const emailAdapter2 = {
 	sendEmail: async (
 		emailAddress: string,
 		subject: string,
