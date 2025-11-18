@@ -6,11 +6,12 @@ import { authRouter } from './auth/api/router/auth.router'
 import { usersRouter } from './users/router/users.router'
 import { commentsRouter } from './comments/router/comments.router'
 import { emailRouter } from './email/router/email.router'
+import cookieParser from 'cookie-parser'
 
 export const setupApp = (app: Express) => {
-	app.use(express.json()) // middleware для парсинга JSON в теле запроса
+	app.use(express.json())
+	app.use(cookieParser())
 
-	// основной роут
 	app.get('/', (_, res) => {
 		res.status(200).send('Hello world!')
 	})

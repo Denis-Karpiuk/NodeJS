@@ -6,12 +6,14 @@ export const jwtService = {
 	createToken: async ({
 		userId,
 		login,
+		expiresIn,
 	}: {
 		userId: string
 		login: string
+		expiresIn: any
 	}): Promise<string> => {
 		return jwt.sign({ userId, login }, appConfig.AC_SECRET, {
-			expiresIn: '1h',
+			expiresIn: expiresIn ?? '1h',
 		})
 	},
 

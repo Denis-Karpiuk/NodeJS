@@ -138,7 +138,7 @@ export const authService = {
 	}: {
 		loginOrEmail: string
 		password: string
-	}): Promise<Result<{ accessToken: string } | null>> {
+	}): Promise<Result<{ accessToken: string; refreshToken: string } | null>> {
 		const result = await this.checkUserCredentials(loginOrEmail, password)
 
 		if (result.status !== ResultStatus.Success) {
@@ -154,11 +154,18 @@ export const authService = {
 		const accessToken = await jwtService.createToken({
 			userId: result.data!._id.toString(),
 			login: result.data!.login,
+			expiresIn: '10s',
+		})
+
+		const refreshToken = await jwtService.createToken({
+			userId: result.data!._id.toString(),
+			login: result.data!.login,
+			expiresIn: '20s',
 		})
 
 		return {
 			status: ResultStatus.Success,
-			data: { accessToken },
+			data: { accessToken, refreshToken },
 			extensions: [],
 		}
 	},

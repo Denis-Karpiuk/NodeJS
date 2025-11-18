@@ -13,6 +13,11 @@ export const loginHandler = async (req: Request, res: Response) => {
 			.send({ errorsMessages: result.extensions })
 	}
 
+	res.cookie('refreshToken', result.data!.refreshToken, {
+		httpOnly: true,
+		maxAge: 20 * 1000,
+	})
+
 	return res.status(HttpStatus.Success).send({
 		accessToken: result.data!.accessToken,
 	})
