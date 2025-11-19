@@ -30,6 +30,13 @@ export const tokenBlackListRepository = {
 		try {
 			const result = await TokenBlackListModel.findOne({ token }).lean()
 
+			if (!result) {
+				return {
+					status: ResultStatus.NotFound,
+					errorMessage: '',
+				}
+			}
+
 			return {
 				status: ResultStatus.Success,
 				data: result,

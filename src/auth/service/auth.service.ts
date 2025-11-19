@@ -185,9 +185,10 @@ export const authService = {
 			}
 		}
 
-		const isBlacklisted =
+		const blackListTokenResult =
 			await tokenBlackListRepository.findOne(refreshToken)
-		if (isBlacklisted) {
+
+		if (blackListTokenResult.status === ResultStatus.Success) {
 			return {
 				status: ResultStatus.Unauthorized,
 				extensions: [
@@ -244,9 +245,10 @@ export const authService = {
 			}
 		}
 
-		const isBlacklisted =
+		const blackListTokenResult =
 			await tokenBlackListRepository.findOne(refreshToken)
-		if (isBlacklisted) {
+
+		if (blackListTokenResult.status === ResultStatus.Success) {
 			return {
 				status: ResultStatus.Unauthorized,
 				extensions: [
