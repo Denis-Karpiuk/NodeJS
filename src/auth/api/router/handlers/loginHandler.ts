@@ -16,6 +16,7 @@ export const loginHandler = async (req: Request, res: Response) => {
 
 	res.cookie('refreshToken', result.data!.refreshToken, {
 		httpOnly: true,
+		secure: true,
 		maxAge: MAX_AGE_20_SEC,
 	})
 

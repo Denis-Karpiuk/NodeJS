@@ -11,13 +11,20 @@ export const meHandler = async (req: Request, res: Response) => {
 		return res.sendStatus(HttpStatus.Unauthorized)
 	}
 
-	const tokenInfo = await jwtService.decodeToken(token)
-
-	if (!tokenInfo) {
+	let verifiedTokenInfo
+	try {
+		verifiedTokenInfo = await jwtService.verifyToken(token)
+	} catch (err) {
 		return res.sendStatus(HttpStatus.Unauthorized)
 	}
 
-	const result = await usersQueryRepository.findUserById(tokenInfo.userId)
+	if (!verifiedTokenInfo) {
+		return res.sendStatus(HttpStatus.Unauthorized)
+	}
+
+	const result = await usersQueryRepository.findUserById(
+		verifiedTokenInfo.userId
+	)
 
 	if (!result) {
 		return res.sendStatus(HttpStatus.Unauthorized)
