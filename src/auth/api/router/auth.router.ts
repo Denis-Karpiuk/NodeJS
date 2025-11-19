@@ -9,6 +9,8 @@ import { registrationConfirmationHandler } from './handlers/registrationConfirma
 import { validateConfirmationBody } from '../../../core/middlewares/validateConfirmationBody'
 import { registrationEmailResendingHandler } from './handlers/registrationEmailResendingHandler'
 import { validateEmail } from '../../../core/middlewares/validateEmail'
+import { logoutHandler } from './handlers/logoutHandler'
+import { refreshTokenHandler } from './handlers/refreshTokenHandler'
 
 export const authRouter = Router({})
 	.post('/login', authBodyValidator, validation, loginHandler)
@@ -26,3 +28,5 @@ export const authRouter = Router({})
 		validation,
 		registrationEmailResendingHandler
 	)
+	.post('/logout', logoutHandler)
+	.post('/refresh-token', refreshTokenHandler)

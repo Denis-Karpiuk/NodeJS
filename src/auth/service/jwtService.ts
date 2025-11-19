@@ -1,6 +1,10 @@
-import jwt from 'jsonwebtoken'
+import jwt, { JwtPayload } from 'jsonwebtoken'
 import { appConfig } from '../../core/config/config'
-import { decode } from 'punycode'
+
+export interface MyJwtPayload extends JwtPayload {
+	userId: string
+	login: string
+}
 
 export const jwtService = {
 	createToken: async ({
@@ -19,5 +23,13 @@ export const jwtService = {
 
 	decodeToken: async (token: string): Promise<any> => {
 		return jwt.decode(token)
+	},
+
+	async verifyToken(token: string): Promise<MyJwtPayload> {
+		try {
+			return jwt.verify(token, appConfig.AC_SECRET) as MyJwtPayload
+		} catch (err) {
+			throw new Error('Invalid or expired token')
+		}
 	},
 }

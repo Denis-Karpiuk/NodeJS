@@ -9,6 +9,7 @@ import { UserDBType } from '../../users/types/user.db.type'
 import { bcryptService } from './bcrypt.service'
 import { jwtService } from './jwtService'
 import { randomUUID } from 'crypto'
+import { tokenBlackListRepository } from '../repository/tokenRepository'
 
 export const authService = {
 	async registration({
@@ -168,6 +169,141 @@ export const authService = {
 			data: { accessToken, refreshToken },
 			extensions: [],
 		}
+	},
+
+	async logout(refreshToken: string): Promise<Result<boolean>> {
+		const parts = refreshToken?.split('.')
+		if (parts?.length !== 3) {
+			return {
+				status: ResultStatus.Unauthorized,
+				extensions: [
+					{
+						field: 'refreshToken',
+						message: 'Invalid refresh token',
+					},
+				],
+			}
+		}
+
+		const isBlacklisted =
+			await tokenBlackListRepository.findOne(refreshToken)
+		if (isBlacklisted) {
+			return {
+				status: ResultStatus.Unauthorized,
+				extensions: [
+					{
+						field: 'refreshToken',
+						message: 'Refresh token is blacklisted',
+					},
+				],
+			}
+		}
+
+		try {
+			const payload = await jwtService.verifyToken(refreshToken)
+
+			if (payload.exp) {
+				tokenBlackListRepository.addOne({
+					userId: payload.userId,
+					token: refreshToken,
+					expiresAt: new Date(payload.exp),
+				})
+			}
+		} catch (err: any) {
+			return {
+				status: ResultStatus.Unauthorized,
+				extensions: [
+					{
+						field: 'refreshToken',
+						message: err?.message,
+					},
+				],
+			}
+		}
+
+		return {
+			status: ResultStatus.Success,
+			data: true,
+			extensions: [],
+		}
+	},
+
+	async refreshToken(
+		refreshToken: string
+	): Promise<Result<{ accessToken: string; refreshToken: string } | null>> {
+		const isRefreshToken = this.checkIsToken(refreshToken)
+		if (!isRefreshToken) {
+			return {
+				status: ResultStatus.Unauthorized,
+				extensions: [
+					{
+						field: 'refreshToken',
+						message: 'Invalid refresh token',
+					},
+				],
+			}
+		}
+
+		const isBlacklisted =
+			await tokenBlackListRepository.findOne(refreshToken)
+		if (isBlacklisted) {
+			return {
+				status: ResultStatus.Unauthorized,
+				extensions: [
+					{
+						field: 'refreshToken',
+						message: 'Refresh token is blacklisted',
+					},
+				],
+			}
+		}
+
+		try {
+			const refreshTokenPayload =
+				await jwtService.verifyToken(refreshToken)
+
+			const { userId, login, exp } = refreshTokenPayload
+
+			if (exp) {
+				tokenBlackListRepository.addOne({
+					userId: userId,
+					token: refreshToken,
+					expiresAt: new Date(exp),
+				})
+			}
+
+			const accessToken = await jwtService.createToken({
+				userId,
+				login,
+				expiresIn: '10s',
+			})
+
+			const newRefreshToken = await jwtService.createToken({
+				userId,
+				login,
+				expiresIn: '20s',
+			})
+
+			return {
+				status: ResultStatus.Success,
+				data: { accessToken, refreshToken: newRefreshToken },
+				extensions: [],
+			}
+		} catch (err: any) {
+			return {
+				status: ResultStatus.Unauthorized,
+				extensions: [
+					{
+						field: 'refreshToken',
+						message: err?.message,
+					},
+				],
+			}
+		}
+	},
+
+	checkIsToken(refreshToken: string) {
+		return refreshToken?.split('.').length === 3
 	},
 
 	async checkUserCredentials(

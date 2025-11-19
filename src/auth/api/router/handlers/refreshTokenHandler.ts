@@ -1,16 +1,15 @@
-import { NextFunction, Request, Response } from 'express'
+import { Request, Response } from 'express'
+import { ResultStatus } from '../../../../core/result/resultStatus'
 import { HttpStatus } from '../../../../core/types/http-statuses'
 import { authService } from '../../../service/auth.service'
-import { ResultStatus } from '../../../../core/result/resultStatus'
-import { resultCodeToHttpException } from '../../../../core/result/resultStatusToHttpCode'
 import { MAX_AGE_20_SEC } from '../../../../core/constants/common'
 
-export const loginHandler = async (req: Request, res: Response) => {
-	const result = await authService.login(req.body)
+export const refreshTokenHandler = async (req: Request, res: Response) => {
+	const result = await authService.refreshToken(req.cookies.refreshToken)
 
 	if (result.status !== ResultStatus.Success) {
 		return res
-			.status(resultCodeToHttpException(result.status))
+			.status(HttpStatus.Unauthorized)
 			.send({ errorsMessages: result.extensions })
 	}
 
