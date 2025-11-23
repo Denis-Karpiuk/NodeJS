@@ -8,7 +8,7 @@ export const secureService = {
 	async addRequestToRequestsList(
 		data: Omit<RequestDto, 'date'>
 	): Promise<Result<null>> {
-		const result = await secureRepository.addOne({
+		const result = await secureRepository.addRequestByIp(data.IP, {
 			...data,
 			date: new Date(),
 		})

@@ -7,13 +7,12 @@ import { usersRouter } from './users/router/users.router'
 import { commentsRouter } from './comments/router/comments.router'
 import { emailRouter } from './email/router/email.router'
 import cookieParser from 'cookie-parser'
-import { requestCounterMiddleware } from './core/middlewares/request.counter.middleware'
 
 export const setupApp = (app: Express) => {
 	app.use(express.json())
 	app.use(cookieParser())
 
-	app.use(requestCounterMiddleware)
+	app.set('trust proxy', true)
 
 	app.get('/', (_, res) => {
 		res.status(200).send('Hello world!')

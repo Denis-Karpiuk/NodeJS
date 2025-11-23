@@ -1,9 +1,17 @@
-import { ApiRequestsModel, RequestType } from '../../models/requests.model'
+import { SecurityModel, RequestType } from '../../models/security.model'
 
 export const secureRepository = {
-	async addOne(requestData: RequestType): Promise<boolean> {
+	async addRequestByIp(
+		ip: string,
+		requestData: RequestType
+	): Promise<boolean> {
 		try {
-			await ApiRequestsModel.create(requestData)
+			await SecurityModel.updateOne(
+				{},
+				{ $push: { requests: requestData } },
+				{ upsert: true }
+			)
+
 			return true
 		} catch (e) {
 			return false
@@ -11,9 +19,18 @@ export const secureRepository = {
 	},
 
 	async getRequestsTotalCountByFilter(filter: RequestType): Promise<number> {
-		return await ApiRequestsModel.countDocuments({
-			...filter,
-			date: { $gte: filter.date },
-		})
+		const result = await SecurityModel.aggregate([
+			{ $unwind: '$requests' },
+			{
+				$match: {
+					'requests.IP': filter.IP,
+					'requests.URL': filter.URL,
+					'requests.date': { $gte: filter.date },
+				},
+			},
+			{ $count: 'totalCount' },
+		])
+
+		return result[0]?.totalCount || 0
 	},
 }
