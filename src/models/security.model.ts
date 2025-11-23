@@ -27,7 +27,7 @@ const SecuritySchema = new Schema(
 	{ _id: true }
 )
 
-export const SecurityModel = model('Security', SecuritySchema)
+export const SecurityModel = model('Security', SecuritySchema, 'security')
 
 export type RequestType = {
 	IP: string
