@@ -6,10 +6,8 @@ import { resultCodeToHttpException } from '../../../../core/result/resultStatusT
 import { MAX_AGE_20_SEC } from '../../../../core/constants/common'
 
 export const loginHandler = async (req: Request, res: Response) => {
-	// const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress
-	// const deviceName = req.headers['user-agent']
-	const ipAddress = 'address4'
-	const deviceName = 'device4'
+	const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress
+	const deviceName = req.headers['user-agent']
 
 	const result = await authService.login({
 		...req.body,
