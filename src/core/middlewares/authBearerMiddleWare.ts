@@ -23,18 +23,18 @@ export const authBearerMiddleware = async (
 		return res.sendStatus(HttpStatus.Unauthorized)
 	}
 
-	const tokenInfo = await jwtService.decodeToken(token)
+	try {
+		const tokenInfo = await jwtService.verifyToken(token)
 
-	if (!tokenInfo) {
+		req.context = {
+			user: {
+				id: tokenInfo.userId,
+				login: tokenInfo.login,
+			},
+		}
+
+		next()
+	} catch (err) {
 		return res.sendStatus(HttpStatus.Unauthorized)
 	}
-
-	req.context = {
-		user: {
-			id: tokenInfo.userId,
-			login: tokenInfo.login,
-		},
-	}
-
-	next()
 }

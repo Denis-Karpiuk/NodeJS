@@ -159,14 +159,13 @@ export const authService = {
 
 		const userId = result.data!._id.toString()
 
+		const deviceId = randomUUID()
+
 		const accessToken = await jwtService.createToken({
-			deviceId: randomUUID(),
 			userId,
 			login: result.data!.login,
 			expiresIn: '10s',
 		})
-
-		const deviceId = randomUUID()
 
 		const refreshToken = await jwtService.createToken({
 			deviceId,
@@ -183,13 +182,13 @@ export const authService = {
 			ipAddress,
 			deviceNameNormalized
 		)
-		debugger
+
 		const shouldAddDevice =
 			existingDevice.status === ResultStatus.Success &&
 			!existingDevice.data?.length
 
 		if (shouldAddDevice) {
-			await securityService.addUserDevice({
+			securityService.addUserDevice({
 				ip: ipAddress,
 				title: deviceNameNormalized,
 				lastActiveDate: new Date(),
@@ -199,7 +198,7 @@ export const authService = {
 				exp: refreshTokenInfo.exp,
 			})
 		} else {
-			await securityService.updateUserDeviceByIpAndNameAndUserId({
+			securityService.updateUserDeviceByIpAndNameAndUserId({
 				ip: ipAddress,
 				title: deviceNameNormalized,
 				lastActiveDate: new Date(),
@@ -314,14 +313,14 @@ export const authService = {
 			const refreshTokenPayload =
 				await jwtService.verifyToken(refreshToken)
 
-			const { userId, login, exp, iat } = refreshTokenPayload
+			const { userId, login, exp, iat, deviceId } = refreshTokenPayload
 
 			if (iat) {
 				securityService.updateUserDeviceByDeviceId({
 					userId: userId,
 					iat: iat ?? 0,
 					lastActiveDate: new Date(),
-					deviceId: refreshTokenPayload.deviceId,
+					deviceId: deviceId,
 					exp: exp ?? 0,
 				})
 			}
@@ -333,6 +332,7 @@ export const authService = {
 			})
 
 			const newRefreshToken = await jwtService.createToken({
+				deviceId,
 				userId,
 				login,
 				expiresIn: '20s',

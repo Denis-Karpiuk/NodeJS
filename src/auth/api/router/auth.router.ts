@@ -15,26 +15,26 @@ import { rateLimit } from '../../../core/middlewares/rate.limit.middleware'
 
 export const authRouter = Router({})
 	.get('/me', meHandler)
-	.post('/login', authBodyValidator, validation, rateLimit(5), loginHandler)
+	.post('/login', rateLimit(5), authBodyValidator, validation, loginHandler)
 	.post(
 		'/registration',
+		rateLimit(5),
 		userBodyValidator,
 		validation,
-		rateLimit(5),
 		registrationHandler
 	)
 	.post(
 		'/registration-confirmation',
+		rateLimit(5),
 		validateConfirmationBody,
 		validation,
-		rateLimit(5),
 		registrationConfirmationHandler
 	)
 	.post(
 		'/registration-email-resending',
+		rateLimit(5),
 		validateEmail,
 		validation,
-		rateLimit(5),
 		registrationEmailResendingHandler
 	)
 	.post('/logout', rateLimit(5), logoutHandler)

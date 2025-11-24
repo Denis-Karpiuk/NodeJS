@@ -24,8 +24,8 @@ export const securityRepository = {
 			{ $unwind: '$requests' },
 			{
 				$match: {
-					'requests.IP': filter.ip,
-					'requests.URL': filter.url,
+					'requests.ip': filter.ip,
+					'requests.url': filter.url,
 					'requests.date': { $gte: filter.date },
 				},
 			},
