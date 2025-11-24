@@ -163,10 +163,9 @@ export const securityService = {
 			}
 		} catch (error) {
 			return {
-				status: ResultStatus.Failure,
+				status: ResultStatus.NotFound,
 				data: undefined,
-				errorMessage:
-					error instanceof Error ? error.message : 'Unknown error',
+				errorMessage: 'Device not found',
 			}
 		}
 	},

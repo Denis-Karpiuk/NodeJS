@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express'
+import { Request, Response } from 'express'
 import { HttpStatus } from '../../../../core/types/http-statuses'
 import { authService } from '../../../service/auth.service'
 import { ResultStatus } from '../../../../core/result/resultStatus'

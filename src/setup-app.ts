@@ -13,8 +13,6 @@ export const setupApp = (app: Express) => {
 	app.use(express.json())
 	app.use(cookieParser())
 
-	app.set('trust proxy', true)
-
 	app.get('/', (_, res) => {
 		res.status(200).send('Hello world!')
 	})

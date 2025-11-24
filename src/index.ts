@@ -8,6 +8,8 @@ const appStarter = async () => {
 	const app = express()
 	setupApp(app)
 
+	app.set('trust proxy', true)
+
 	// порт приложения
 	const PORT = process.env.PORT || 5001
 

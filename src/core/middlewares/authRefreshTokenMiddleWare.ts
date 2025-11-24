@@ -2,29 +2,19 @@ import { NextFunction, Request, Response } from 'express'
 import { HttpStatus } from '../types/http-statuses'
 import { jwtService } from '../../auth/service/jwtService'
 
-export const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin'
-export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'qwerty'
-
-export const authBearerMiddleware = async (
+export const authRefreshTokenMiddleware = async (
 	req: Request,
 	res: Response,
 	next: NextFunction
 ) => {
-	const auth = req.get('authorization') || req.headers['authorization']
-
-	if (!auth) {
-		res.sendStatus(HttpStatus.Unauthorized)
-		return
-	}
-
-	const [_, token] = auth.split(' ')
+	const token = req.cookies.refreshToken
 
 	if (!token) {
 		return res.sendStatus(HttpStatus.Unauthorized)
 	}
 
 	try {
-		const tokenInfo = await jwtService.verifyToken(token)
+		const tokenInfo = await jwtService.decodeToken(token)
 
 		req.context = {
 			user: {

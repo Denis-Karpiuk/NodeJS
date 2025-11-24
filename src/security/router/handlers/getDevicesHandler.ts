@@ -7,8 +7,6 @@ import { securityService } from '../../service/security.service'
 export const getDevicesHandler = async (req: Request, res: Response) => {
 	const user = req.context!.user!
 
-	console.log(user, 'user')
-
 	const result = await securityService.getAllDevicesByUserId(user.id)
 
 	if (result.status !== ResultStatus.Success) {
@@ -17,5 +15,12 @@ export const getDevicesHandler = async (req: Request, res: Response) => {
 			.send({ errorsMessages: result.errorMessage })
 	}
 
-	return res.status(HttpStatus.Success).send(result.data)
+	return res.status(HttpStatus.Success).send(
+		result?.data?.map(device => ({
+			ip: device.ip,
+			title: device.title,
+			lastActiveDate: device.lastActiveDate,
+			deviceId: device.deviceId,
+		}))
+	)
 }

@@ -9,8 +9,11 @@ import { UserDBType } from '../../users/types/user.db.type'
 import { bcryptService } from './bcrypt.service'
 import { jwtService } from './jwtService'
 import { randomUUID } from 'crypto'
-import { tokenBlackListRepository } from '../repository/tokenRepository'
 import { securityService } from '../../security/service/security.service'
+import {
+	EXPIRES_IN_ACCESS_TOKEN,
+	EXPIRES_IN_REFRESH_TOKEN,
+} from '../../core/constants/common'
 
 export const authService = {
 	async registration({
@@ -147,6 +150,8 @@ export const authService = {
 	}): Promise<Result<{ accessToken: string; refreshToken: string } | null>> {
 		const result = await this.checkUserCredentials(loginOrEmail, password)
 
+		console.log(result, 'result checkUserCredentials')
+
 		if (result.status !== ResultStatus.Success) {
 			return {
 				status: ResultStatus.Unauthorized,
@@ -164,14 +169,14 @@ export const authService = {
 		const accessToken = await jwtService.createToken({
 			userId,
 			login: result.data!.login,
-			expiresIn: '50s',
+			expiresIn: EXPIRES_IN_ACCESS_TOKEN,
 		})
 
 		const refreshToken = await jwtService.createToken({
 			deviceId,
 			userId,
 			login: result.data!.login,
-			expiresIn: '60s',
+			expiresIn: EXPIRES_IN_REFRESH_TOKEN,
 		})
 
 		const refreshTokenInfo = await jwtService.decodeToken(refreshToken)
@@ -229,30 +234,42 @@ export const authService = {
 			}
 		}
 
-		const blackListTokenResult =
-			await tokenBlackListRepository.findOne(refreshToken)
-
-		if (blackListTokenResult.status === ResultStatus.Success) {
-			return {
-				status: ResultStatus.Unauthorized,
-				extensions: [
-					{
-						field: 'refreshToken',
-						message: 'Refresh token is blacklisted',
-					},
-				],
-			}
-		}
-
 		try {
+			const { iat } = await jwtService.decodeToken(refreshToken)
+
+			// Check if the token's iat exists in the database (token is still valid)
+			const checkRefreshTokenIatResult =
+				await securityService.checkExistTokenIat(iat)
+
+			if (
+				checkRefreshTokenIatResult.status !== ResultStatus.Success ||
+				!checkRefreshTokenIatResult.data
+			) {
+				return {
+					status: ResultStatus.Unauthorized,
+					extensions: [
+						{
+							field: 'refreshToken',
+							message: 'Refresh token is invalid',
+						},
+					],
+				}
+			}
+
 			const payload = await jwtService.verifyToken(refreshToken)
 
-			if (payload.exp) {
-				tokenBlackListRepository.addOne({
-					userId: payload.userId,
-					token: refreshToken,
-					expiresAt: new Date(payload.exp),
-				})
+			if (payload.deviceId && payload.userId) {
+				const deleteResult = await securityService.deleteDeviceById(
+					payload.userId,
+					payload.deviceId
+				)
+
+				if (deleteResult.status === ResultStatus.Failure) {
+					console.error(
+						'Failed to delete device on logout:',
+						deleteResult.errorMessage
+					)
+				}
 			}
 		} catch (err: any) {
 			return {
@@ -313,29 +330,31 @@ export const authService = {
 			const refreshTokenPayload =
 				await jwtService.verifyToken(refreshToken)
 
-			const { userId, login, exp, iat, deviceId } = refreshTokenPayload
-
-			if (iat) {
-				securityService.updateUserDeviceByDeviceId({
-					userId: userId,
-					iat: iat ?? 0,
-					lastActiveDate: new Date(),
-					deviceId: deviceId,
-					exp: exp ?? 0,
-				})
-			}
+			const { userId, login, deviceId } = refreshTokenPayload
 
 			const accessToken = await jwtService.createToken({
 				userId,
 				login,
-				expiresIn: '10s',
+				expiresIn: EXPIRES_IN_ACCESS_TOKEN,
 			})
 
 			const newRefreshToken = await jwtService.createToken({
 				deviceId,
 				userId,
 				login,
-				expiresIn: '20s',
+				expiresIn: EXPIRES_IN_REFRESH_TOKEN,
+			})
+
+			const newRefreshTokenInfo =
+				await jwtService.decodeToken(newRefreshToken)
+
+			// Update device with new token's iat and exp to invalidate the old token
+			await securityService.updateUserDeviceByDeviceId({
+				userId: userId,
+				iat: newRefreshTokenInfo.iat,
+				lastActiveDate: new Date(),
+				deviceId: deviceId,
+				exp: newRefreshTokenInfo.exp,
 			})
 
 			return {

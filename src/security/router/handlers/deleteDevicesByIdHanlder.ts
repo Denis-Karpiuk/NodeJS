@@ -1,4 +1,3 @@
-import { jwtService } from '../../../auth/service/jwtService'
 import { ResultStatus } from '../../../core/result/resultStatus'
 import { resultCodeToHttpException } from '../../../core/result/resultStatusToHttpCode'
 import { HttpStatus } from '../../../core/types/http-statuses'
@@ -15,6 +14,14 @@ export const deleteDeviceByIdHandler = async (req: Request, res: Response) => {
 		return res
 			.status(resultCodeToHttpException(deviceResult.status))
 			.send({ errorsMessages: deviceResult.errorMessage })
+	}
+
+	if (!deviceResult.data) {
+		return res.status(HttpStatus.NotFound).send({
+			errorsMessages: [
+				{ message: 'Device not found', field: 'deviceId' },
+			],
+		})
 	}
 
 	if (deviceResult.data?.userId !== user.id) {
