@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import { ResultStatus } from '../../../../core/result/resultStatus'
 import { HttpStatus } from '../../../../core/types/http-statuses'
 import { authService } from '../../../service/auth.service'
-import { MAX_AGE_20_SEC } from '../../../../core/constants/common'
+import { MAX_AGE_REFRESH_TOKEN_COOKIE } from '../../../../core/constants/common'
 
 export const refreshTokenHandler = async (req: Request, res: Response) => {
 	const result = await authService.refreshToken(req.cookies.refreshToken)
@@ -16,7 +16,7 @@ export const refreshTokenHandler = async (req: Request, res: Response) => {
 	res.cookie('refreshToken', result.data!.refreshToken, {
 		httpOnly: true,
 		secure: true,
-		maxAge: MAX_AGE_20_SEC,
+		maxAge: MAX_AGE_REFRESH_TOKEN_COOKIE,
 	})
 
 	return res.status(HttpStatus.Success).send({

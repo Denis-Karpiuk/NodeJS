@@ -7,6 +7,8 @@ import { securityService } from '../../service/security.service'
 export const getDevicesHandler = async (req: Request, res: Response) => {
 	const user = req.context!.user!
 
+	console.log(user, 'user')
+
 	const result = await securityService.getAllDevicesByUserId(user.id)
 
 	if (result.status !== ResultStatus.Success) {
