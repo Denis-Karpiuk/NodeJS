@@ -163,7 +163,7 @@ export const authService = {
 			deviceId: randomUUID(),
 			userId,
 			login: result.data!.login,
-			expiresIn: '1h',
+			expiresIn: '10s',
 		})
 
 		const deviceId = randomUUID()
@@ -172,7 +172,7 @@ export const authService = {
 			deviceId,
 			userId,
 			login: result.data!.login,
-			expiresIn: '1h',
+			expiresIn: '20s',
 		})
 
 		const refreshTokenInfo = await jwtService.decodeToken(refreshToken)
