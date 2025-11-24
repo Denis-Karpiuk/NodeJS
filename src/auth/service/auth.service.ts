@@ -164,14 +164,14 @@ export const authService = {
 		const accessToken = await jwtService.createToken({
 			userId,
 			login: result.data!.login,
-			expiresIn: '10s',
+			expiresIn: '50s',
 		})
 
 		const refreshToken = await jwtService.createToken({
 			deviceId,
 			userId,
 			login: result.data!.login,
-			expiresIn: '20s',
+			expiresIn: '60s',
 		})
 
 		const refreshTokenInfo = await jwtService.decodeToken(refreshToken)
