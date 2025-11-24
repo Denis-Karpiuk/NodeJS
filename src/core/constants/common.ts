@@ -1,1 +1,1 @@
-export const MAX_AGE_20_SEC = 20 * 1000
+export const MAX_AGE_REFRESH_TOKEN_COOKIE = 60 * 1000
