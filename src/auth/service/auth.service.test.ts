@@ -197,6 +197,8 @@ describe('AUTH-INTEGRATION', () => {
 			const result = await loginUseCase({
 				loginOrEmail: userEmail,
 				password: userPassword,
+				ipAddress: '127.0.0.1',
+				deviceName: 'test',
 			})
 
 			expect(result.status).toBe(ResultStatus.Success)
@@ -209,6 +211,8 @@ describe('AUTH-INTEGRATION', () => {
 			const result = await loginUseCase({
 				loginOrEmail: 'incorrectEmail',
 				password: 'incorrectPassword',
+				ipAddress: '127.0.0.1',
+				deviceName: 'test',
 			})
 
 			expect(result.status).toBe(ResultStatus.Unauthorized)

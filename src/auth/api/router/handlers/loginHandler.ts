@@ -6,7 +6,14 @@ import { resultCodeToHttpException } from '../../../../core/result/resultStatusT
 import { MAX_AGE_20_SEC } from '../../../../core/constants/common'
 
 export const loginHandler = async (req: Request, res: Response) => {
-	const result = await authService.login(req.body)
+	const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress
+	const deviceName = req.headers['user-agent']
+
+	const result = await authService.login({
+		...req.body,
+		ipAddress,
+		deviceName,
+	})
 
 	if (result.status !== ResultStatus.Success) {
 		return res

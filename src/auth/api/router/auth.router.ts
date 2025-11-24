@@ -14,20 +14,28 @@ import { refreshTokenHandler } from './handlers/refreshTokenHandler'
 import { rateLimit } from '../../../core/middlewares/rate.limit.middleware'
 
 export const authRouter = Router({})
-	.post('/login', authBodyValidator, validation, loginHandler)
-	.get('/me', rateLimit(5), meHandler)
-	.post('/registration', userBodyValidator, validation, registrationHandler)
+	.get('/me', meHandler)
+	.post('/login', authBodyValidator, validation, rateLimit(5), loginHandler)
+	.post(
+		'/registration',
+		userBodyValidator,
+		validation,
+		rateLimit(5),
+		registrationHandler
+	)
 	.post(
 		'/registration-confirmation',
 		validateConfirmationBody,
 		validation,
+		rateLimit(5),
 		registrationConfirmationHandler
 	)
 	.post(
 		'/registration-email-resending',
 		validateEmail,
 		validation,
+		rateLimit(5),
 		registrationEmailResendingHandler
 	)
-	.post('/logout', logoutHandler)
-	.post('/refresh-token', refreshTokenHandler)
+	.post('/logout', rateLimit(5), logoutHandler)
+	.post('/refresh-token', rateLimit(5), refreshTokenHandler)

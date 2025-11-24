@@ -2,8 +2,8 @@ import { Schema, model } from 'mongoose'
 
 const RequestSchema = new Schema(
 	{
-		IP: { type: String, required: true },
-		URL: { type: String, required: true },
+		ip: { type: String, required: true },
+		url: { type: String, required: true },
 		date: { type: Date, required: true },
 	},
 	{ _id: false }
@@ -11,18 +11,21 @@ const RequestSchema = new Schema(
 
 const DevicesSchema = new Schema(
 	{
-		devices: { type: Array, required: true },
-		IP: { type: String, required: true },
-		URL: { type: String, required: true },
-		date: { type: Date, required: true },
+		ip: { type: String, required: true },
+		title: { type: String, required: true },
+		lastActiveDate: { type: Date, required: true },
+		deviceId: { type: String, required: true },
+		userId: { type: String, required: true },
+		iat: { type: Number, required: true },
+		exp: { type: Number, required: true },
 	},
-	{ _id: true }
+	{ _id: false }
 )
 
 const SecuritySchema = new Schema(
 	{
 		requests: { type: [RequestSchema], default: [] },
-		devices: { type: DevicesSchema },
+		devices: { type: [DevicesSchema], default: [] },
 	},
 	{ _id: true }
 )
@@ -30,7 +33,7 @@ const SecuritySchema = new Schema(
 export const SecurityModel = model('Security', SecuritySchema, 'security')
 
 export type RequestType = {
-	IP: string
-	URL: string
+	ip: string
+	url: string
 	date: Date
 }

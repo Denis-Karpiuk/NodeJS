@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
-import { secureService } from '../../secure/service/secure.service'
+import { securityService } from '../../security/service/security.service'
+import { HttpStatus } from '../types/http-statuses'
 
 export const rateLimit =
 	(maxRequestsCount: number) =>
@@ -11,19 +12,20 @@ export const rateLimit =
 		let totalRequestsCountResult = 0
 
 		if (typeof ipAddress === 'string' && typeof url === 'string') {
-			await secureService.addRequestToRequestsList({
-				IP: ipAddress,
-				URL: url,
+			await securityService.addRequestToRequestsList({
+				ip: ipAddress,
+				url,
 			})
 
-			totalRequestsCountResult = await secureService.getAllRequestsCount({
-				IP: ipAddress,
-				URL: url,
-			})
+			totalRequestsCountResult =
+				await securityService.getAllRequestsCount({
+					ip: ipAddress,
+					url,
+				})
 		}
 
 		if (totalRequestsCountResult > maxRequestsCount) {
-			return res.status(429).send('Too many requests')
+			return res.sendStatus(HttpStatus.TooManyRequests)
 		}
 
 		next()

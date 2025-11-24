@@ -10,6 +10,7 @@ import { bcryptService } from './bcrypt.service'
 import { jwtService } from './jwtService'
 import { randomUUID } from 'crypto'
 import { tokenBlackListRepository } from '../repository/tokenRepository'
+import { securityService } from '../../security/service/security.service'
 
 export const authService = {
 	async registration({
@@ -134,9 +135,13 @@ export const authService = {
 	},
 
 	async login({
+		deviceName,
+		ipAddress,
 		loginOrEmail,
 		password,
 	}: {
+		deviceName?: string
+		ipAddress: string
 		loginOrEmail: string
 		password: string
 	}): Promise<Result<{ accessToken: string; refreshToken: string } | null>> {
@@ -152,17 +157,57 @@ export const authService = {
 			}
 		}
 
+		const userId = result.data!._id.toString()
+
 		const accessToken = await jwtService.createToken({
-			userId: result.data!._id.toString(),
+			deviceId: randomUUID(),
+			userId,
 			login: result.data!.login,
-			expiresIn: '10s',
+			expiresIn: '1h',
 		})
 
+		const deviceId = randomUUID()
+
 		const refreshToken = await jwtService.createToken({
-			userId: result.data!._id.toString(),
+			deviceId,
+			userId,
 			login: result.data!.login,
-			expiresIn: '20s',
+			expiresIn: '1h',
 		})
+
+		const refreshTokenInfo = await jwtService.decodeToken(refreshToken)
+
+		const deviceNameNormalized = deviceName ?? 'Unknown device name'
+
+		const existingDevice = await securityService.getDeviceByIpAndName(
+			ipAddress,
+			deviceNameNormalized
+		)
+		debugger
+		const shouldAddDevice =
+			existingDevice.status === ResultStatus.Success &&
+			!existingDevice.data?.length
+
+		if (shouldAddDevice) {
+			await securityService.addUserDevice({
+				ip: ipAddress,
+				title: deviceNameNormalized,
+				lastActiveDate: new Date(),
+				deviceId: refreshTokenInfo.deviceId,
+				userId: refreshTokenInfo.userId,
+				iat: refreshTokenInfo.iat,
+				exp: refreshTokenInfo.exp,
+			})
+		} else {
+			await securityService.updateUserDeviceByIpAndNameAndUserId({
+				ip: ipAddress,
+				title: deviceNameNormalized,
+				lastActiveDate: new Date(),
+				userId: refreshTokenInfo.userId,
+				iat: refreshTokenInfo.iat,
+				exp: refreshTokenInfo.exp,
+			})
+		}
 
 		return {
 			status: ResultStatus.Success,
@@ -245,10 +290,15 @@ export const authService = {
 			}
 		}
 
-		const blackListTokenResult =
-			await tokenBlackListRepository.findOne(refreshToken)
+		const { iat } = await jwtService.decodeToken(refreshToken)
 
-		if (blackListTokenResult.status === ResultStatus.Success) {
+		const checkRefreshTokenIatResult =
+			await securityService.checkExistTokenIat(iat)
+
+		if (
+			checkRefreshTokenIatResult.status !== ResultStatus.Success ||
+			!checkRefreshTokenIatResult.data
+		) {
 			return {
 				status: ResultStatus.Unauthorized,
 				extensions: [
@@ -264,13 +314,15 @@ export const authService = {
 			const refreshTokenPayload =
 				await jwtService.verifyToken(refreshToken)
 
-			const { userId, login, exp } = refreshTokenPayload
+			const { userId, login, exp, iat } = refreshTokenPayload
 
-			if (exp) {
-				tokenBlackListRepository.addOne({
+			if (iat) {
+				securityService.updateUserDeviceByDeviceId({
 					userId: userId,
-					token: refreshToken,
-					expiresAt: new Date(exp),
+					iat: iat ?? 0,
+					lastActiveDate: new Date(),
+					deviceId: refreshTokenPayload.deviceId,
+					exp: exp ?? 0,
 				})
 			}
 

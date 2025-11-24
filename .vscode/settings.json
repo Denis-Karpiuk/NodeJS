@@ -1,7 +1,7 @@
 {
   "debug.showBreakpointsInOverviewRuler": true,
   "debug.showInlineBreakpointCandidates": true,
-  "debug.allowBreakpointsEverywhere": false,
+  "debug.allowBreakpointsEverywhere": true,
   "debug.focusWindowOnBreak": true,
   "debug.openDebug": "openOnDebugBreak",
   "typescript.tsdk": "node_modules/typescript/lib",

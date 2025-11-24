@@ -7,6 +7,7 @@ import { usersRouter } from './users/router/users.router'
 import { commentsRouter } from './comments/router/comments.router'
 import { emailRouter } from './email/router/email.router'
 import cookieParser from 'cookie-parser'
+import { securityRouter } from './security/router/security.router'
 
 export const setupApp = (app: Express) => {
 	app.use(express.json())
@@ -25,4 +26,5 @@ export const setupApp = (app: Express) => {
 	app.use('/api/comments', commentsRouter)
 	app.use('/api/testing', testingRouter)
 	app.use('/api/email', emailRouter)
+	app.use('/api/security', securityRouter)
 }
