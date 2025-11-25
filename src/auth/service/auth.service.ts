@@ -193,7 +193,7 @@ export const authService = {
 			!existingDevice.data?.length
 
 		if (shouldAddDevice) {
-			securityService.addUserDevice({
+			await securityService.addUserDevice({
 				ip: ipAddress,
 				title: deviceNameNormalized,
 				lastActiveDate: new Date(),
@@ -203,7 +203,7 @@ export const authService = {
 				exp: refreshTokenInfo.exp,
 			})
 		} else {
-			securityService.updateUserDeviceByIpAndNameAndUserId({
+			await securityService.updateUserDeviceByIpAndNameAndUserId({
 				ip: ipAddress,
 				title: deviceNameNormalized,
 				lastActiveDate: new Date(),
@@ -306,31 +306,46 @@ export const authService = {
 			}
 		}
 
-		const { iat } = await jwtService.decodeToken(refreshToken)
-
-		const checkRefreshTokenIatResult =
-			await securityService.checkExistTokenIat(iat)
-
-		if (
-			checkRefreshTokenIatResult.status !== ResultStatus.Success ||
-			!checkRefreshTokenIatResult.data
-		) {
-			return {
-				status: ResultStatus.Unauthorized,
-				extensions: [
-					{
-						field: 'refreshToken',
-						message: 'Refresh token is blacklisted',
-					},
-				],
-			}
-		}
-
 		try {
 			const refreshTokenPayload =
 				await jwtService.verifyToken(refreshToken)
 
 			const { userId, login, deviceId } = refreshTokenPayload
+
+			// Check if the device still exists (not deleted)
+			const deviceResult =
+				await securityService.getDeviceByDeviceId(deviceId)
+
+			if (
+				deviceResult.status !== ResultStatus.Success ||
+				!deviceResult.data
+			) {
+				return {
+					status: ResultStatus.Unauthorized,
+					extensions: [
+						{
+							field: 'refreshToken',
+							message: 'Refresh token is blacklisted',
+						},
+					],
+				}
+			}
+
+			const { iat } = await jwtService.decodeToken(refreshToken)
+
+			// Check if the token's iat matches the device's current iat
+			// This ensures the token hasn't been invalidated by a refresh
+			if (deviceResult.data.iat !== iat) {
+				return {
+					status: ResultStatus.Unauthorized,
+					extensions: [
+						{
+							field: 'refreshToken',
+							message: 'Refresh token is blacklisted',
+						},
+					],
+				}
+			}
 
 			const accessToken = await jwtService.createToken({
 				userId,

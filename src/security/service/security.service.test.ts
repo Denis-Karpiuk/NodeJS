@@ -364,6 +364,70 @@ describe('SECURITY-INTEGRATION', () => {
 			expect(device1StillExists).toBeDefined()
 		})
 
+		it('should invalidate refresh token after device deletion', async () => {
+			// Setup: login 2 times to create 2 devices
+			const login1 = await loginUseCase({
+				loginOrEmail: userEmail,
+				password: userPassword,
+				ipAddress: '127.0.0.1',
+				deviceName: 'Chrome-TokenTest1',
+			})
+			const login2 = await loginUseCase({
+				loginOrEmail: userEmail,
+				password: userPassword,
+				ipAddress: '192.168.1.1',
+				deviceName: 'Firefox-TokenTest2',
+			})
+
+			const token1Info = await jwtService.decodeToken(
+				login1.data!.refreshToken
+			)
+			const token2Info = await jwtService.decodeToken(
+				login2.data!.refreshToken
+			)
+			userId = token1Info.userId
+			device1Id = token1Info.deviceId
+			device2Id = token2Info.deviceId
+
+			// Verify device 2's refresh token works before deletion
+			const refreshResult2Before = await refreshTokenUseCase(
+				login2.data!.refreshToken
+			)
+			expect(refreshResult2Before.status).toBe(ResultStatus.Success)
+
+			// Delete device 2
+			const deleteResult = await securityService.deleteDeviceById(
+				userId,
+				device2Id
+			)
+			expect(deleteResult.status).toBe(ResultStatus.Success)
+
+			// Verify device is actually deleted
+			const devicesAfterDelete =
+				await securityService.getAllDevicesByUserId(userId)
+			expect(
+				devicesAfterDelete.data?.find(d => d.deviceId === device2Id)
+			).toBeUndefined()
+
+			// Try to use device 2's NEW refresh token (from the refresh above) - should fail because device is deleted
+			const refreshResult2After = await refreshTokenUseCase(
+				refreshResult2Before.data!.refreshToken
+			)
+			expect(refreshResult2After.status).toBe(ResultStatus.Unauthorized)
+			expect(refreshResult2After.extensions).toEqual([
+				{
+					field: 'refreshToken',
+					message: 'Refresh token is blacklisted',
+				},
+			])
+
+			// Verify device 1's refresh token still works
+			const refreshResult1After = await refreshTokenUseCase(
+				login1.data!.refreshToken
+			)
+			expect(refreshResult1After.status).toBe(ResultStatus.Success)
+		})
+
 		it('should logout device 3 and verify token is blacklisted', async () => {
 			// Setup: login 4 times
 			const login1 = await loginUseCase({
@@ -408,15 +472,18 @@ describe('SECURITY-INTEGRATION', () => {
 				devicesBefore.data?.find(d => d.deviceId === device3Id)
 			).toBeDefined()
 
-			// Logout device 3 - this blacklists the token
+			// Logout device 3 - this deletes the device and invalidates the token
 			const logoutResult = await logoutUseCase(login3.data!.refreshToken)
 			expect(logoutResult.status).toBe(ResultStatus.Success)
 			expect(logoutResult.data).toBe(true)
 
-			// Note: Current implementation doesn't delete device on logout, only blacklists token
-			// According to requirements, device should be removed from list, but implementation doesn't do this
-			// So we verify logout was successful (token blacklisted)
-			// If device deletion is required, the logout implementation needs to be updated
+			// Verify the device was actually deleted
+			const devicesAfterLogout =
+				await securityService.getAllDevicesByUserId(userId)
+			const device3AfterLogout = devicesAfterLogout.data?.find(
+				d => d.deviceId === device3Id
+			)
+			expect(device3AfterLogout).toBeUndefined()
 		})
 
 		it('should delete all remaining devices except current one', async () => {
