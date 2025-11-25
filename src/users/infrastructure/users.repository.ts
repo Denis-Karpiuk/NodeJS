@@ -2,8 +2,10 @@ import { WithId } from 'mongodb'
 import { isValidObjectId } from 'mongoose'
 import { UsersModel } from '../../models/users.model'
 import { UserDBType } from '../types/user.db.type'
+import { injectable } from 'inversify'
 
-export const usersRepository = {
+@injectable()
+export class UsersRepository {
 	async findByEmailOrLogin(
 		loginOrEmail: string
 	): Promise<WithId<UserDBType> | null> {
@@ -12,14 +14,14 @@ export const usersRepository = {
 		}).lean()
 
 		return result as WithId<UserDBType> | null
-	},
+	}
 
 	async create(user: UserDBType): Promise<string> {
 		const newUser = new UsersModel(user)
 		await newUser.save()
 
 		return newUser._id.toString()
-	},
+	}
 
 	async deleteUserById(id: string) {
 		if (!isValidObjectId(id)) {
@@ -27,7 +29,7 @@ export const usersRepository = {
 		}
 
 		return await UsersModel.findByIdAndDelete(id)
-	},
+	}
 
 	async doesExistByLoginOrEmail(
 		login: string,
@@ -40,7 +42,7 @@ export const usersRepository = {
 		if (resultByEmail) return true
 
 		return false
-	},
+	}
 
 	async findByConfirmationCode(
 		confirmationCode: string
@@ -50,7 +52,7 @@ export const usersRepository = {
 		}).lean()
 
 		return result as WithId<UserDBType> | null
-	},
+	}
 
 	async updateUser(
 		id: string,
@@ -59,5 +61,7 @@ export const usersRepository = {
 		return await UsersModel.findOneAndUpdate({ _id: id }, body, {
 			new: true,
 		})
-	},
+	}
 }
+
+export const usersRepository = new UsersRepository()

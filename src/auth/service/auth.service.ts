@@ -1,28 +1,36 @@
-import { WithId } from 'mongodb'
-import { emailManager } from '../../core/managers/emailManager'
-import { Result } from '../../core/result/result.type'
-import { ResultStatus } from '../../core/result/resultStatus'
-import { usersRepository } from '../../users/infrastructure/users.repository'
-import { User } from '../../users/service/user.entity'
-import { CreateUserDto } from '../../users/types/create.user.dto'
-import { UserDBType } from '../../users/types/user.db.type'
-import { bcryptService } from './bcrypt.service'
-import { jwtService } from './jwtService'
 import { randomUUID } from 'crypto'
-import { securityService } from '../../security/service/security.service'
+import { WithId } from 'mongodb'
 import {
 	EXPIRES_IN_ACCESS_TOKEN,
 	EXPIRES_IN_REFRESH_TOKEN,
 } from '../../core/constants/common'
+import { emailManager } from '../../core/managers/emailManager'
+import { Result } from '../../core/result/result.type'
+import { ResultStatus } from '../../core/result/resultStatus'
+import { securityService } from '../../security/service/security.service'
+import { UsersRepository } from '../../users/infrastructure/users.repository'
+import { User } from '../../users/service/user.entity'
+import { CreateUserDto } from '../../users/types/create.user.dto'
+import { UserDBType } from '../../users/types/user.db.type'
+import { JwtService } from './jwtService'
+import { BcryptService } from './bcrypt.service'
+import { injectable } from 'inversify'
 
-export const authService = {
+@injectable()
+export class AuthService {
+	constructor(
+		protected usersRepository: UsersRepository,
+		protected jwtService: JwtService,
+		protected bcryptService: BcryptService
+	) {}
+
 	async registration({
 		email,
 		login,
 		password,
 	}: CreateUserDto): Promise<Result<User | null>> {
-		const userByLogin = await usersRepository.findByEmailOrLogin(login)
-		const userByEmail = await usersRepository.findByEmailOrLogin(email)
+		const userByLogin = await this.usersRepository.findByEmailOrLogin(login)
+		const userByEmail = await this.usersRepository.findByEmailOrLogin(email)
 
 		if (userByLogin || userByEmail) {
 			const extensions: Array<{ field: string; message: string }> = []
@@ -48,11 +56,11 @@ export const authService = {
 			}
 		}
 
-		const passwordHash = await bcryptService.generateHash(password)
+		const passwordHash = await this.bcryptService.generateHash(password)
 
 		const newUser = new User(login, email, passwordHash)
 
-		await usersRepository.create(newUser)
+		await this.usersRepository.create(newUser)
 
 		emailManager
 			.sendConfirmationCode(
@@ -66,11 +74,11 @@ export const authService = {
 			data: newUser,
 			extensions: [],
 		}
-	},
+	}
 
 	async registrationConfirmation(code: string): Promise<Result<string>> {
 		const userByConfirmationCode =
-			await usersRepository.findByConfirmationCode(code)
+			await this.usersRepository.findByConfirmationCode(code)
 
 		if (!userByConfirmationCode) {
 			return {
@@ -116,7 +124,7 @@ export const authService = {
 			}
 		}
 
-		await usersRepository.updateUser(
+		await this.usersRepository.updateUser(
 			userByConfirmationCode._id.toString(),
 			{
 				emailConfirmation: {
@@ -135,7 +143,7 @@ export const authService = {
 			data: 'Success confirmation email',
 			extensions: [],
 		}
-	},
+	}
 
 	async login({
 		deviceName,
@@ -149,8 +157,6 @@ export const authService = {
 		password: string
 	}): Promise<Result<{ accessToken: string; refreshToken: string } | null>> {
 		const result = await this.checkUserCredentials(loginOrEmail, password)
-
-		console.log(result, 'result checkUserCredentials')
 
 		if (result.status !== ResultStatus.Success) {
 			return {
@@ -166,20 +172,20 @@ export const authService = {
 
 		const deviceId = randomUUID()
 
-		const accessToken = await jwtService.createToken({
+		const accessToken = await this.jwtService.createToken({
 			userId,
 			login: result.data!.login,
 			expiresIn: EXPIRES_IN_ACCESS_TOKEN,
 		})
 
-		const refreshToken = await jwtService.createToken({
+		const refreshToken = await this.jwtService.createToken({
 			deviceId,
 			userId,
 			login: result.data!.login,
 			expiresIn: EXPIRES_IN_REFRESH_TOKEN,
 		})
 
-		const refreshTokenInfo = await jwtService.decodeToken(refreshToken)
+		const refreshTokenInfo = await this.jwtService.decodeToken(refreshToken)
 
 		const deviceNameNormalized = deviceName ?? 'Unknown device name'
 
@@ -218,7 +224,7 @@ export const authService = {
 			data: { accessToken, refreshToken },
 			extensions: [],
 		}
-	},
+	}
 
 	async logout(refreshToken: string): Promise<Result<boolean>> {
 		const parts = refreshToken?.split('.')
@@ -235,7 +241,7 @@ export const authService = {
 		}
 
 		try {
-			const { iat } = await jwtService.decodeToken(refreshToken)
+			const { iat } = await this.jwtService.decodeToken(refreshToken)
 
 			// Check if the token's iat exists in the database (token is still valid)
 			const checkRefreshTokenIatResult =
@@ -256,7 +262,7 @@ export const authService = {
 				}
 			}
 
-			const payload = await jwtService.verifyToken(refreshToken)
+			const payload = await this.jwtService.verifyToken(refreshToken)
 
 			if (payload.deviceId && payload.userId) {
 				const deleteResult = await securityService.deleteDeviceById(
@@ -288,7 +294,7 @@ export const authService = {
 			data: true,
 			extensions: [],
 		}
-	},
+	}
 
 	async refreshToken(
 		refreshToken: string
@@ -308,7 +314,7 @@ export const authService = {
 
 		try {
 			const refreshTokenPayload =
-				await jwtService.verifyToken(refreshToken)
+				await this.jwtService.verifyToken(refreshToken)
 
 			const { userId, login, deviceId } = refreshTokenPayload
 
@@ -331,7 +337,7 @@ export const authService = {
 				}
 			}
 
-			const { iat } = await jwtService.decodeToken(refreshToken)
+			const { iat } = await this.jwtService.decodeToken(refreshToken)
 
 			// Check if the token's iat matches the device's current iat
 			// This ensures the token hasn't been invalidated by a refresh
@@ -347,13 +353,13 @@ export const authService = {
 				}
 			}
 
-			const accessToken = await jwtService.createToken({
+			const accessToken = await this.jwtService.createToken({
 				userId,
 				login,
 				expiresIn: EXPIRES_IN_ACCESS_TOKEN,
 			})
 
-			const newRefreshToken = await jwtService.createToken({
+			const newRefreshToken = await this.jwtService.createToken({
 				deviceId,
 				userId,
 				login,
@@ -361,7 +367,7 @@ export const authService = {
 			})
 
 			const newRefreshTokenInfo =
-				await jwtService.decodeToken(newRefreshToken)
+				await this.jwtService.decodeToken(newRefreshToken)
 
 			// Update device with new token's iat and exp to invalidate the old token
 			await securityService.updateUserDeviceByDeviceId({
@@ -388,17 +394,17 @@ export const authService = {
 				],
 			}
 		}
-	},
+	}
 
 	checkIsToken(refreshToken: string) {
 		return refreshToken?.split('.').length === 3
-	},
+	}
 
 	async checkUserCredentials(
 		loginOrEmail: string,
 		password: string
 	): Promise<Result<WithId<UserDBType> | null>> {
-		const user = await usersRepository.findByEmailOrLogin(loginOrEmail)
+		const user = await this.usersRepository.findByEmailOrLogin(loginOrEmail)
 
 		if (!user) {
 			return {
@@ -411,7 +417,7 @@ export const authService = {
 			}
 		}
 
-		const isPasswordCorrect = await bcryptService.checkPassword(
+		const isPasswordCorrect = await this.bcryptService.checkPassword(
 			password,
 			user.passwordHash
 		)
@@ -441,10 +447,10 @@ export const authService = {
 		}
 
 		return { status: ResultStatus.Success, data: user, extensions: [] }
-	},
+	}
 
 	async registrationEmailResending(email: string): Promise<Result<string>> {
-		const user = await usersRepository.findByEmailOrLogin(email)
+		const user = await this.usersRepository.findByEmailOrLogin(email)
 
 		if (!user) {
 			return {
@@ -476,7 +482,7 @@ export const authService = {
 
 		const confirmationCode = randomUUID()
 
-		await usersRepository.updateUser(user._id.toString(), {
+		await this.usersRepository.updateUser(user._id.toString(), {
 			emailConfirmation: {
 				...user.emailConfirmation,
 				confirmationCode,
@@ -493,5 +499,11 @@ export const authService = {
 			data: 'Success',
 			extensions: [],
 		}
-	},
+	}
 }
+
+export const authService = new AuthService(
+	new UsersRepository(),
+	new JwtService(),
+	new BcryptService()
+)

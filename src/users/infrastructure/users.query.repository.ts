@@ -4,13 +4,15 @@ import { PaginationAndSorting } from '../../core/types/pagination-and-sorting'
 import { UsersViewType } from '../types/users.view.type'
 import { PaginationType } from '../../core/types/pagination.type'
 import { SortDirection } from '../../core/types/sort-direction'
+import { injectable } from 'inversify'
 
 export type QueryPaginationAndSorting = PaginationAndSorting<string> & {
 	searchLoginTerm: string
 	searchEmailTerm: string
 }
 
-export const usersQueryRepository = {
+@injectable()
+export class UsersQueryRepository {
 	async findAllUsers({
 		pageNumber,
 		pageSize,
@@ -51,9 +53,9 @@ export const usersQueryRepository = {
 			page: pageNumber,
 			pageSize,
 			totalCount,
-			items: users.map(mapUserToResponse),
+			items: users.map(this.mapUserToResponse),
 		}
-	},
+	}
 	async findUserById(id: string) {
 		if (!isValidObjectId(id)) {
 			return null
@@ -71,14 +73,16 @@ export const usersQueryRepository = {
 			email: user.email,
 			createdAt: user.createdAt,
 		}
-	},
-}
+	}
 
-function mapUserToResponse(user: any): UsersViewType {
-	return {
-		id: user._id.toString(),
-		email: user.email,
-		login: user.login,
-		createdAt: user.createdAt,
+	mapUserToResponse(user: any): UsersViewType {
+		return {
+			id: user._id.toString(),
+			email: user.email,
+			login: user.login,
+			createdAt: user.createdAt,
+		}
 	}
 }
+
+export const usersQueryRepository = new UsersQueryRepository()

@@ -4,11 +4,20 @@ import { emailAdapter } from '../../core/adapters/emailAdapter'
 import { ResultStatus } from '../../core/result/resultStatus'
 import { db } from '../../db/db'
 import { UsersModel } from '../../models/users.model'
-import { usersRepository } from '../../users/infrastructure/users.repository'
+import { UsersRepository } from './../../users/infrastructure/users.repository'
 import { User } from '../../users/service/user.entity'
 import { usersService } from '../../users/service/users.service'
-import { authService } from './auth.service'
-import { bcryptService } from './bcrypt.service'
+import { AuthService } from './auth.service'
+import { BcryptService } from './bcrypt.service'
+import { JwtService } from './jwtService'
+
+const usersRepository = new UsersRepository()
+const bcryptService = new BcryptService()
+const authService = new AuthService(
+	usersRepository,
+	new JwtService(),
+	bcryptService
+)
 
 const testSeeder = {
 	createUserDto: () => {
