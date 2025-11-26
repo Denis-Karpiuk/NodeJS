@@ -504,30 +504,19 @@ export class AuthService {
 	async passwordRecovery(email: string): Promise<Result<null>> {
 		const user = await this.usersRepository.findByEmailOrLogin(email)
 
-		if (!user) {
-			return {
-				status: ResultStatus.BadRequest,
-				extensions: [
-					{
-						field: 'email',
-						message: 'User not found',
-					},
-				],
-				errorMessage: 'Bad Request',
-			}
-		}
-
 		const recoveryCode = randomUUID()
 
-		await this.usersRepository.updateUser(user._id.toString(), {
-			recoveryInformation: {
-				recoveryCode,
-				expirationDate: new Date(Date.now() + 2 * 60 * 1000),
-			},
-		})
+		if (user) {
+			await this.usersRepository.updateUser(user._id.toString(), {
+				recoveryInformation: {
+					recoveryCode,
+					expirationDate: new Date(Date.now() + 2 * 60 * 1000),
+				},
+			})
+		}
 
 		emailManager
-			.sendPasswordRecoveryCode(user.email, recoveryCode)
+			.sendPasswordRecoveryCode(email, recoveryCode)
 			.catch(err => console.log('Error sending email', err))
 
 		return {
