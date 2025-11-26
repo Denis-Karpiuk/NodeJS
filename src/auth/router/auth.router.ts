@@ -1,14 +1,14 @@
 import { Router } from 'express'
 import { iocContainer } from '../../core/composition.root'
+import { newPasswordValidator } from '../../core/middlewares/newPasswordValidator'
 import { rateLimit } from '../../core/middlewares/rate.limit.middleware'
 import { userBodyValidator } from '../../core/middlewares/userBodyValidator'
 import { validation } from '../../core/middlewares/validatation.middleware'
 import { validateConfirmationBody } from '../../core/middlewares/validateConfirmationBody'
 import { validateEmail } from '../../core/middlewares/validateEmail'
+import { validateEmailRecovery } from '../../core/middlewares/validateEmailRecovery'
 import { authBodyValidator } from '../authBodyValidation'
 import { AuthController } from '../controller/auth.controller'
-import { validateEmailRecovery } from '../../core/middlewares/validateEmailRecovery'
-import { newPasswordValidator } from '../../core/middlewares/newPasswordValidator'
 
 const authController = iocContainer.get<AuthController>(AuthController)
 

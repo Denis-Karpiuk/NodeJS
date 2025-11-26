@@ -54,6 +54,16 @@ export class UsersRepository {
 		return result as WithId<UserDBType> | null
 	}
 
+	async findByRecoveryCode(
+		recoveryCode: string
+	): Promise<WithId<UserDBType> | null> {
+		const result = await UsersModel.findOne({
+			'recoveryInformation.recoveryCode': recoveryCode,
+		}).lean()
+
+		return result as WithId<UserDBType> | null
+	}
+
 	async updateUser(
 		id: string,
 		body: Partial<UserDBType>

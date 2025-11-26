@@ -24,6 +24,7 @@ export class AuthController {
 		this.logout = this.logout.bind(this)
 		this.refreshToken = this.refreshToken.bind(this)
 		this.passwordRecovery = this.passwordRecovery.bind(this)
+		this.createNewPassword = this.createNewPassword.bind(this)
 	}
 
 	async me(req: Request, res: Response) {
@@ -188,6 +189,17 @@ export class AuthController {
 
 	async createNewPassword(req: Request, res: Response) {
 		const { newPassword, recoveryCode } = req.body
+
+		const result = await this.authService.createNewPassword(
+			recoveryCode,
+			newPassword
+		)
+
+		if (result.status !== ResultStatus.Success) {
+			return res
+				.status(resultCodeToHttpException(result.status))
+				.send({ errorsMessages: result.extensions })
+		}
 
 		res.sendStatus(HttpStatus.NoContent)
 	}

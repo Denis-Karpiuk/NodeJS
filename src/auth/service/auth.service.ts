@@ -535,6 +535,52 @@ export class AuthService {
 			extensions: [],
 		}
 	}
+
+	async createNewPassword(
+		recoveryCode: string,
+		newPassword: string
+	): Promise<Result<null>> {
+		const user = await this.usersRepository.findByRecoveryCode(recoveryCode)
+
+		if (!user) {
+			return {
+				status: ResultStatus.BadRequest,
+				extensions: [
+					{
+						field: 'recoveryCode',
+						message: 'Recovery code not found',
+					},
+				],
+			}
+		}
+
+		if (
+			user?.recoveryInformation?.expirationDate &&
+			user.recoveryInformation.expirationDate < new Date()
+		) {
+			return {
+				status: ResultStatus.BadRequest,
+				extensions: [
+					{
+						field: 'recoveryCode',
+						message: 'Recovery code expired',
+					},
+				],
+			}
+		}
+
+		const hashPassword = this.bcryptService.generateHash(newPassword)
+
+		await this.usersRepository.updateUser(user._id.toString(), {
+			passwordHash: await hashPassword,
+			recoveryInformation: undefined,
+		})
+
+		return {
+			status: ResultStatus.Success,
+			extensions: [],
+		}
+	}
 }
 
 export const authService = new AuthService(
