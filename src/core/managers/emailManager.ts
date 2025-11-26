@@ -20,4 +20,13 @@ export const emailManager = {
 		)
 		return result
 	},
+
+	async sendPasswordRecoveryCode(email: string, recoveryCode: string) {
+		const result = await emailAdapter.sendEmail(
+			email,
+			'Recovery password code',
+			authEmails.passwordRecoveryEmail(recoveryCode)
+		)
+		return result
+	},
 }

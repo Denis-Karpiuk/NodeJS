@@ -1,5 +1,13 @@
 import { Schema, model } from 'mongoose'
 
+const RecoveryInformationSchema = new Schema(
+	{
+		recoveryCode: { type: String, default: '' },
+		expirationDate: { type: Date, required: true },
+	},
+	{ _id: false }
+)
+
 const UsersSchema = new Schema(
 	{
 		email: { type: String, required: true },
@@ -10,6 +18,10 @@ const UsersSchema = new Schema(
 			confirmationCode: { type: String, default: '' },
 			expirationDate: { type: Date, required: true },
 			isConfirmed: { type: Boolean, default: false },
+		},
+		recoveryInformation: {
+			type: RecoveryInformationSchema,
+			required: false,
 		},
 	},
 	{ _id: true }

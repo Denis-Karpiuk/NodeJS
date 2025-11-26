@@ -23,6 +23,7 @@ export class AuthController {
 			this.registrationEmailResending.bind(this)
 		this.logout = this.logout.bind(this)
 		this.refreshToken = this.refreshToken.bind(this)
+		this.passwordRecovery = this.passwordRecovery.bind(this)
 	}
 
 	async me(req: Request, res: Response) {
@@ -169,5 +170,25 @@ export class AuthController {
 		return res.status(HttpStatus.Success).send({
 			accessToken: result.data!.accessToken,
 		})
+	}
+
+	async passwordRecovery(req: Request, res: Response) {
+		const { email } = req.body
+
+		const result = await this.authService.passwordRecovery(email)
+
+		if (result.status !== ResultStatus.Success) {
+			return res
+				.status(resultCodeToHttpException(result.status))
+				.send({ errorsMessages: result.extensions })
+		}
+
+		res.sendStatus(HttpStatus.NoContent)
+	}
+
+	async createNewPassword(req: Request, res: Response) {
+		const { newPassword, recoveryCode } = req.body
+
+		res.sendStatus(HttpStatus.NoContent)
 	}
 }

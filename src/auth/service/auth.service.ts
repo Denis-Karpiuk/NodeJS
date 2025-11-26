@@ -500,6 +500,41 @@ export class AuthService {
 			extensions: [],
 		}
 	}
+
+	async passwordRecovery(email: string): Promise<Result<null>> {
+		const user = await this.usersRepository.findByEmailOrLogin(email)
+
+		if (!user) {
+			return {
+				status: ResultStatus.BadRequest,
+				extensions: [
+					{
+						field: 'email',
+						message: 'User not found',
+					},
+				],
+				errorMessage: 'Bad Request',
+			}
+		}
+
+		const recoveryCode = randomUUID()
+
+		await this.usersRepository.updateUser(user._id.toString(), {
+			recoveryInformation: {
+				recoveryCode,
+				expirationDate: new Date(Date.now() + 2 * 60 * 1000),
+			},
+		})
+
+		emailManager
+			.sendPasswordRecoveryCode(user.email, recoveryCode)
+			.catch(err => console.log('Error sending email', err))
+
+		return {
+			status: ResultStatus.Success,
+			extensions: [],
+		}
+	}
 }
 
 export const authService = new AuthService(

@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { iocContainer } from '../../composition.root'
+import { iocContainer } from '../../core/composition.root'
 import { rateLimit } from '../../core/middlewares/rate.limit.middleware'
 import { userBodyValidator } from '../../core/middlewares/userBodyValidator'
 import { validation } from '../../core/middlewares/validatation.middleware'
@@ -7,7 +7,8 @@ import { validateConfirmationBody } from '../../core/middlewares/validateConfirm
 import { validateEmail } from '../../core/middlewares/validateEmail'
 import { authBodyValidator } from '../authBodyValidation'
 import { AuthController } from '../controller/auth.controller'
-import 'reflect-metadata'
+import { validateEmailRecovery } from '../../core/middlewares/validateEmailRecovery'
+import { newPasswordValidator } from '../../core/middlewares/newPasswordValidator'
 
 const authController = iocContainer.get<AuthController>(AuthController)
 
@@ -43,3 +44,17 @@ export const authRouter = Router({})
 	)
 	.post('/logout', rateLimit(5), authController.logout)
 	.post('/refresh-token', rateLimit(5), authController.refreshToken)
+	.post(
+		'/password-recovery',
+		validateEmailRecovery,
+		validation,
+		rateLimit(5),
+		authController.passwordRecovery
+	)
+	.post(
+		'/new-password',
+		newPasswordValidator,
+		validation,
+		rateLimit(5),
+		authController.createNewPassword
+	)
