@@ -101,4 +101,24 @@ export class CommentRepository {
 			}
 		}
 	}
+
+	async updateLikesInfo(
+		id: string,
+		likesInfo: CommentDbType['likesInfo']
+	): Promise<boolean> {
+		try {
+			await CommentModel.updateOne(
+				{ _id: id },
+				{
+					$set: {
+						likesInfo: likesInfo,
+					},
+				}
+			)
+
+			return true
+		} catch {
+			return false
+		}
+	}
 }

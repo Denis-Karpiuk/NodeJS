@@ -7,6 +7,7 @@ import { validation } from '../../core/middlewares/validatation.middleware'
 import { commentBodyValidator } from '../commentBodyValidation'
 import { CommentsController } from '../controller/comments.controller'
 import { ruleEditCommentValidation } from './rule-validation'
+import { likeCommentBodyValidator } from '../lkeCommentBody'
 
 const commentController =
 	iocContainer.get<CommentsController>(CommentsController)
@@ -21,6 +22,14 @@ export const commentsRouter = Router({})
 		commentBodyValidator,
 		validation,
 		commentController.updateComment
+	)
+
+	.put(
+		'/:id/like-status',
+		authBearerMiddleware,
+		likeCommentBodyValidator,
+		validation,
+		commentController.likeComment
 	)
 
 	.delete(

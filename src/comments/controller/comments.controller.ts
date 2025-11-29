@@ -15,6 +15,7 @@ export class CommentsController {
 		this.getComment = this.getComment.bind(this)
 		this.updateComment = this.updateComment.bind(this)
 		this.deleteComment = this.deleteComment.bind(this)
+		this.likeComment = this.likeComment.bind(this)
 	}
 
 	async getComment(req: Request, res: Response) {
@@ -52,6 +53,23 @@ export class CommentsController {
 		const id = req.params.id
 
 		const result = await this.commentService.deleteCommentById(id)
+
+		if (result.status !== ResultStatus.Success) {
+			return res
+				.status(resultCodeToHttpException(result.status))
+				.send({ errorsMessages: result.extensions })
+		}
+		res.status(HttpStatus.NoContent).send(result.data)
+	}
+
+	async likeComment(req: Request, res: Response) {
+		const id = req.params.id
+		const body = req.body
+
+		const result = await this.commentService.likeComment({
+			commentId: id,
+			...body,
+		})
 
 		if (result.status !== ResultStatus.Success) {
 			return res
