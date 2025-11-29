@@ -1,6 +1,4 @@
-import { Request, Response, Router } from 'express'
-import { HttpStatus } from '../../core/types/http-statuses'
-import { PostsRepository } from './../repository/posts.repository'
+import { Router } from 'express'
 import { postsSortFields } from '../../blogs/router/blogs.router'
 import { commentBodyValidator } from '../../comments/commentBodyValidation'
 import { iocContainer } from '../../core/composition.root'
@@ -14,39 +12,22 @@ import { postBodyValidator } from '../validation'
 
 const postsController = iocContainer.get<PostController>(PostController)
 
-const postsRepository = iocContainer.get<PostsRepository>(PostsRepository)
-
 export const postsRouter = Router({})
 	.get(
 		'',
 		paginationAndSortingValidation(postsSortFields),
 		validation,
-		postsController.getPostComments
+		postsController.getPostsList
 	)
 
-	.get('/:id', async (req, res) => {
-		const post = await postsRepository.getPostById(req.params.id)
-		if (!post) {
-			res.status(HttpStatus.NotFound).send('Post not found')
-		}
-
-		res.status(HttpStatus.Success).send(post)
-	})
+	.get('/:id', postsController.getPostById)
 
 	.post(
 		'',
 		adminGuardMiddleware,
 		postBodyValidator,
 		validation,
-		async (req: Request, res: Response) => {
-			const result = await postsRepository.addPost(req.body)
-
-			if (!result) {
-				res.status(HttpStatus.NotFound).send('Blog not found')
-			}
-
-			res.status(HttpStatus.Created).send(result)
-		}
+		postsController.addPost
 	)
 
 	.put(
@@ -55,20 +36,7 @@ export const postsRouter = Router({})
 		idParamsValidator,
 		postBodyValidator,
 		validation,
-		async (req: Request, res: Response) => {
-			const updateResult = await postsRepository.updatePost({
-				...req.body,
-				id: req.params.id,
-			})
-
-			if (!updateResult) {
-				res.status(HttpStatus.NotFound).send('Post not found')
-			}
-
-			res.status(HttpStatus.NoContent).send(
-				`Post ${req.params.id} was updated successfully`
-			)
-		}
+		postsController.updatePostById
 	)
 
 	.delete(
@@ -76,17 +44,7 @@ export const postsRouter = Router({})
 		adminGuardMiddleware,
 		idParamsValidator,
 		validation,
-		async (req: Request, res: Response) => {
-			const result = await postsRepository.deletePostById(req.params.id)
-
-			if (!result) {
-				res.status(HttpStatus.NotFound).send('Post not found')
-			}
-
-			res.status(HttpStatus.NoContent).send(
-				`Post ${req.params.id} was deleted`
-			)
-		}
+		postsController.deletePostById
 	)
 
 	.post(

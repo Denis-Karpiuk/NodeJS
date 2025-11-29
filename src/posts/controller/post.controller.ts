@@ -19,6 +19,11 @@ export class PostController {
 		protected postsRepository: PostsRepository
 	) {
 		this.addPostComment = this.addPostComment.bind(this)
+		this.getPostComments = this.getPostComments.bind(this)
+		this.getPostsList = this.getPostsList.bind(this)
+		this.getPostById = this.getPostById.bind(this)
+		this.addPost = this.addPost.bind(this)
+		this.updatePostById = this.updatePostById.bind(this)
 	}
 	async addPostComment(req: Request, res: Response) {
 		const user = req.context!.user!
@@ -55,37 +60,7 @@ export class PostController {
 		res.status(HttpStatus.Created).send(comment.data)
 	}
 
-	getPostComments = async (req: Request, res: Response) => {
-		const sanitizedQuery = matchedData(req, {
-			locations: ['query'],
-			includeOptionals: true,
-		})
-
-		const inputQuery = setDefaultSortAndPaginationIfNotExist(sanitizedQuery)
-
-		const postResult = await this.postsRepository.getPostById(req.params.id)
-
-		if (!postResult) {
-			return res
-				.status(HttpStatus.NotFound)
-				.send('Post with this id not found')
-		}
-
-		const comments = await this.commentQwRepository.findMany({
-			...inputQuery,
-			postId: req.params.id,
-		})
-
-		if (comments.status !== ResultStatus.Success) {
-			return res
-				.status(resultCodeToHttpException(comments.status))
-				.send({ errorsMessages: comments.extensions })
-		}
-
-		res.status(HttpStatus.Success).send(comments.data)
-	}
-
-	async getPostsListHandler(req: Request, res: Response) {
+	async getPostsList(req: Request, res: Response) {
 		const sanitizedQuery = matchedData(req, {
 			locations: ['query'],
 			includeOptionals: true,
@@ -100,7 +75,16 @@ export class PostController {
 		res.status(HttpStatus.Success).send(posts)
 	}
 
-	async getPostCommentsHandler(req: Request, res: Response) {
+	async getPostById(req: Request, res: Response) {
+		const post = await this.postsRepository.getPostById(req.params.id)
+		if (!post) {
+			res.status(HttpStatus.NotFound).send('Post not found')
+		}
+
+		res.status(HttpStatus.Success).send(post)
+	}
+
+	async getPostComments(req: Request, res: Response) {
 		const sanitizedQuery = matchedData(req, {
 			locations: ['query'],
 			includeOptionals: true,
@@ -128,5 +112,42 @@ export class PostController {
 		}
 
 		res.status(HttpStatus.Success).send(comments.data)
+	}
+
+	async addPost(req: Request, res: Response) {
+		const result = await this.postsRepository.addPost(req.body)
+
+		if (!result) {
+			res.status(HttpStatus.NotFound).send('Blog not found')
+		}
+
+		res.status(HttpStatus.Created).send(result)
+	}
+
+	async updatePostById(req: Request, res: Response) {
+		const updateResult = await this.postsRepository.updatePost({
+			...req.body,
+			id: req.params.id,
+		})
+
+		if (!updateResult) {
+			res.status(HttpStatus.NotFound).send('Post not found')
+		}
+
+		res.status(HttpStatus.NoContent).send(
+			`Post ${req.params.id} was updated successfully`
+		)
+	}
+
+	async deletePostById(req: Request, res: Response) {
+		const result = await this.postsRepository.deletePostById(req.params.id)
+
+		if (!result) {
+			res.status(HttpStatus.NotFound).send('Post not found')
+		}
+
+		res.status(HttpStatus.NoContent).send(
+			`Post ${req.params.id} was deleted`
+		)
 	}
 }
