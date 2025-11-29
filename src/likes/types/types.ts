@@ -1,4 +1,4 @@
-export type CommentType = {
+export type CommentLikeType = {
 	commentId: string
 	likeStatus: string
 	userId: string

@@ -1,13 +1,36 @@
 import { injectable } from 'inversify'
 import { CommentsLikesModel } from '../../models/comments.likes.model'
-import { CommentType } from '../types/types'
+import { CommentLikeType } from '../types/types'
 
 @injectable()
 export class CommentsLikesRepository {
-	async getLikeByUserIdAndCommentId(
+	async getCountLikesByFilter(filter: {
+		commentId: string
+		likeStatus: string
+	}): Promise<number> {
+		try {
+			return await CommentsLikesModel.countDocuments(filter).lean()
+		} catch (error) {
+			return 0
+		}
+	}
+
+	async findLikesByCommentId(
+		commentId: string
+	): Promise<CommentLikeType[] | null> {
+		try {
+			return await CommentsLikesModel.find({
+				commentId,
+			}).lean()
+		} catch (error) {
+			return null
+		}
+	}
+
+	async findLikeByUserIdAndCommentId(
 		userId: string,
 		commentId: string
-	): Promise<null | CommentType> {
+	): Promise<null | CommentLikeType> {
 		try {
 			return await CommentsLikesModel.findOne({
 				userId,
@@ -18,7 +41,7 @@ export class CommentsLikesRepository {
 		}
 	}
 
-	async addLike(dto: CommentType): Promise<boolean> {
+	async addLike(dto: CommentLikeType): Promise<boolean> {
 		try {
 			const newLike = new CommentsLikesModel(dto)
 			await newLike.save()
@@ -28,7 +51,7 @@ export class CommentsLikesRepository {
 		}
 	}
 
-	async updateLike(dto: CommentType): Promise<boolean> {
+	async updateLike(dto: CommentLikeType): Promise<boolean> {
 		try {
 			await CommentsLikesModel.updateOne(
 				{

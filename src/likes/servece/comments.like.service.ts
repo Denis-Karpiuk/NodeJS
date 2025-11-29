@@ -1,8 +1,7 @@
 import { injectable } from 'inversify'
-import { CommentRepository } from '../../comments/repository/comment.repository'
 import { Result } from '../../core/result/result.type'
 import { CommentsLikesRepository } from '../repository/comment.likes.repository'
-import { CommentType } from '../types/types'
+import { CommentLikeType } from '../types/types'
 import { CommentQwRepository } from '../../comments/repository/comment.query.repository'
 import { ResultStatus } from '../../core/result/resultStatus'
 
@@ -13,11 +12,11 @@ export class CommentsLikeService {
 		protected commentQwRepository: CommentQwRepository
 	) {}
 
-	async addLikeToComment(dto: CommentType): Promise<Result<boolean>> {
+	async addLikeToComment(dto: CommentLikeType): Promise<Result<boolean>> {
 		const commentById = await this.commentQwRepository.findById(
 			dto.commentId
 		)
-		debugger
+
 		if (!commentById) {
 			return {
 				status: ResultStatus.NotFound,
@@ -29,7 +28,7 @@ export class CommentsLikeService {
 		}
 
 		const currentLike =
-			await this.commentsLikesRepository.getLikeByUserIdAndCommentId(
+			await this.commentsLikesRepository.findLikeByUserIdAndCommentId(
 				dto.userId,
 				dto.commentId
 			)

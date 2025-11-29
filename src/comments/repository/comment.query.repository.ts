@@ -85,7 +85,9 @@ export class CommentQwRepository {
 	}
 }
 
-function mapCommentFromDbToView(data: WithId<CommentDbType>): CommentViewType {
+export function mapCommentFromDbToView(
+	data: WithId<CommentDbType>
+): CommentViewType {
 	return {
 		id: data._id.toString(),
 		content: data.content,

@@ -21,9 +21,11 @@ export class CommentsController {
 	}
 
 	async getComment(req: Request, res: Response) {
+		debugger
 		const id = req.params.id
+		const user = req.context!.user
 
-		const result = await this.commentQwRepository.findById(id)
+		const result = await this.commentService.getCommentById(id, user!.id)
 
 		if (result.status !== ResultStatus.Success) {
 			return res

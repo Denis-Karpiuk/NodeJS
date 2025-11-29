@@ -13,7 +13,13 @@ const commentController =
 	iocContainer.get<CommentsController>(CommentsController)
 
 export const commentsRouter = Router({})
-	.get('/:id', idParamsValidator, validation, commentController.getComment)
+	.get(
+		'/:id',
+		idParamsValidator,
+		validation,
+		authBearerMiddleware,
+		commentController.getComment
+	)
 
 	.put(
 		'/:id',

@@ -6,6 +6,10 @@ import { CommentDbType } from '../types/comment.db.type'
 
 @injectable()
 export class CommentRepository {
+	async findById(id: string) {
+		return await CommentModel.findById(id).lean()
+	}
+
 	async addOne(comment: Omit<CommentDbType, '_id'>): Promise<Result<string>> {
 		try {
 			const newComment = new CommentModel(comment)
