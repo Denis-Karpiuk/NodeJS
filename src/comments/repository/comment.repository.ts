@@ -6,7 +6,7 @@ import { CommentDbType } from '../types/comment.db.type'
 
 @injectable()
 export class CommentRepository {
-	async addOne(comment: CommentDbType): Promise<Result<string>> {
+	async addOne(comment: Omit<CommentDbType, '_id'>): Promise<Result<string>> {
 		try {
 			const newComment = new CommentModel(comment)
 			const savedNewComment = await newComment.save()
@@ -102,10 +102,7 @@ export class CommentRepository {
 		}
 	}
 
-	async updateLikesInfo(
-		id: string,
-		likesInfo: CommentDbType['likesInfo']
-	): Promise<boolean> {
+	async updateLikesInfo(id: string, likesInfo: any): Promise<boolean> {
 		try {
 			await CommentModel.updateOne(
 				{ _id: id },

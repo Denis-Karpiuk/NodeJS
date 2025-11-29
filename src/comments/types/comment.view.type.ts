@@ -5,10 +5,5 @@ export type CommentViewType = {
 		userId: string
 		userLogin: string
 	}
-	likesInfo: {
-		likesCount: number
-		dislikesCount: number
-		myStatus: string
-	}
 	createdAt: Date
 }

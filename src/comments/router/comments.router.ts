@@ -29,7 +29,7 @@ export const commentsRouter = Router({})
 		authBearerMiddleware,
 		likeCommentBodyValidator,
 		validation,
-		commentController.likeComment
+		commentController.addLikeStatusToComment
 	)
 
 	.delete(

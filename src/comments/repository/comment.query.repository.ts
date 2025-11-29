@@ -93,11 +93,6 @@ function mapCommentFromDbToView(data: WithId<CommentDbType>): CommentViewType {
 			userId: data.commentatorInfo.userId,
 			userLogin: data.commentatorInfo.userLogin,
 		},
-		likesInfo: {
-			likesCount: data.likesInfo.likesCount,
-			dislikesCount: data.likesInfo.dislikesCount,
-			myStatus: data.likesInfo.myStatus,
-		},
 		createdAt: data.createdAt,
 	}
 }
