@@ -12,6 +12,11 @@ const CommentSchema = new Schema(
 			required: true, // 👈 это делает commentatorInfo обязательным
 		},
 		createdAt: { type: Date, default: new Date().toISOString() },
+		likesInfo: {
+			likesCount: { type: Number, default: 0 },
+			dislikesCount: { type: Number, default: 0 },
+			myStatus: { type: String, default: 'None' },
+		},
 	},
 	{ _id: true }
 )

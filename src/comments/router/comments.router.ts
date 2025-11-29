@@ -1,16 +1,18 @@
 import { Router } from 'express'
 
-import { deleteCommentHandler } from './handlers/delete-comment-handler'
-import { getCommentHandler } from './handlers/get-comment-handler'
-import { updateCommentHandler } from './handlers/update-comment-handler'
-import { idParamsValidator } from '../../core/middlewares/requiredId.middleWare'
-import { commentBodyValidator } from '../commentBodyValidation'
-import { validation } from '../../core/middlewares/validatation.middleware'
+import { iocContainer } from '../../core/composition.root'
 import { authBearerMiddleware } from '../../core/middlewares/authBearerMiddleWare'
+import { idParamsValidator } from '../../core/middlewares/requiredId.middleWare'
+import { validation } from '../../core/middlewares/validatation.middleware'
+import { commentBodyValidator } from '../commentBodyValidation'
+import { CommentsController } from '../controller/comments.controller'
 import { ruleEditCommentValidation } from './rule-validation'
 
+const commentController =
+	iocContainer.get<CommentsController>(CommentsController)
+
 export const commentsRouter = Router({})
-	.get('/:id', idParamsValidator, validation, getCommentHandler)
+	.get('/:id', idParamsValidator, validation, commentController.getComment)
 
 	.put(
 		'/:id',
@@ -18,7 +20,7 @@ export const commentsRouter = Router({})
 		ruleEditCommentValidation,
 		commentBodyValidator,
 		validation,
-		updateCommentHandler
+		commentController.updateComment
 	)
 
 	.delete(
@@ -26,5 +28,5 @@ export const commentsRouter = Router({})
 		authBearerMiddleware,
 		ruleEditCommentValidation,
 		validation,
-		deleteCommentHandler
+		commentController.deleteComment
 	)

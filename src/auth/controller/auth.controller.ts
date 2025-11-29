@@ -27,6 +27,34 @@ export class AuthController {
 		this.createNewPassword = this.createNewPassword.bind(this)
 	}
 
+	async login(req: Request, res: Response) {
+		const ipAddress =
+			req.headers['x-forwarded-for'] || req.socket.remoteAddress
+		const deviceName = req.headers['user-agent']
+
+		const result = await this.authService.login({
+			...req.body,
+			ipAddress,
+			deviceName,
+		})
+
+		if (result.status !== ResultStatus.Success) {
+			return res
+				.status(resultCodeToHttpException(result.status))
+				.send({ errorsMessages: result.extensions })
+		}
+
+		res.cookie('refreshToken', result.data!.refreshToken, {
+			httpOnly: true,
+			secure: true,
+			maxAge: MAX_AGE_REFRESH_TOKEN_COOKIE,
+		})
+
+		return res.status(HttpStatus.Success).send({
+			accessToken: result.data!.accessToken,
+		})
+	}
+
 	async me(req: Request, res: Response) {
 		const authorization = req.headers.authorization
 		const token = authorization?.split(' ')[1]
@@ -61,34 +89,6 @@ export class AuthController {
 		}
 
 		return res.status(HttpStatus.Success).send(me)
-	}
-
-	async login(req: Request, res: Response) {
-		const ipAddress =
-			req.headers['x-forwarded-for'] || req.socket.remoteAddress
-		const deviceName = req.headers['user-agent']
-
-		const result = await this.authService.login({
-			...req.body,
-			ipAddress,
-			deviceName,
-		})
-
-		if (result.status !== ResultStatus.Success) {
-			return res
-				.status(resultCodeToHttpException(result.status))
-				.send({ errorsMessages: result.extensions })
-		}
-
-		res.cookie('refreshToken', result.data!.refreshToken, {
-			httpOnly: true,
-			secure: true,
-			maxAge: MAX_AGE_REFRESH_TOKEN_COOKIE,
-		})
-
-		return res.status(HttpStatus.Success).send({
-			accessToken: result.data!.accessToken,
-		})
 	}
 
 	async registration(req: Request, res: Response) {

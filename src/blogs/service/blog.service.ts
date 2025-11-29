@@ -1,5 +1,5 @@
-import { blogsRepository, BlogType } from '../repository/blogs.mongo.repository'
-
+import { injectable } from 'inversify'
+import { BlogsRepository, BlogType } from '../repository/blogs.mongo.repository'
 export type BlogSearchParamsType = {
 	searchNameTerm: string
 	sortBy: string
@@ -18,8 +18,11 @@ export type BlogsSearchResultType = {
 
 type ParamsType = any
 
-export const blogsService = {
+@injectable()
+export class BlogsService {
+	constructor(protected blogsRepository: BlogsRepository) {}
+
 	async findMany(params: ParamsType): Promise<BlogsSearchResultType> {
-		return blogsRepository.findMany(params)
-	},
+		return this.blogsRepository.findMany(params)
+	}
 }

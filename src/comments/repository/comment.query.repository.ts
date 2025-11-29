@@ -9,8 +9,10 @@ import { PaginationType } from '../../core/types/pagination.type'
 import { skipItems } from '../../core/utils/skipItmes'
 import { SortDirection } from '../../core/types/sort-direction'
 import { pagesCount } from '../../core/utils/pagesCount'
+import { injectable } from 'inversify'
 
-export const commentQwRepository = {
+@injectable()
+export class CommentQwRepository {
 	async findById(id: string): Promise<Result<CommentViewType>> {
 		try {
 			const comment = await CommentModel.findById(id).lean()
@@ -36,7 +38,7 @@ export const commentQwRepository = {
 					error instanceof Error ? error.message : 'Unknown error',
 			}
 		}
-	},
+	}
 
 	async findMany({
 		pageNumber,
@@ -80,7 +82,7 @@ export const commentQwRepository = {
 					error instanceof Error ? error.message : 'Unknown error',
 			}
 		}
-	},
+	}
 }
 
 function mapCommentFromDbToView(data: WithId<CommentDbType>): CommentViewType {

@@ -1,12 +1,18 @@
-import mongoose from 'mongoose'
-import { commentRepository } from '../repository/comment.repository'
-import { CommentDto, UpdateCommentDto } from '../types/comment.dto'
-import { postsRepository } from '../../posts/repository/posts.repository'
+import { injectable } from 'inversify'
 import { ResultStatus } from '../../core/result/resultStatus'
+import { PostsRepository } from '../../posts/repository/posts.repository'
+import { CommentDto, UpdateCommentDto } from '../types/comment.dto'
+import { CommentRepository } from './../repository/comment.repository'
 
-export const commentService = {
-	addCommentByPostId: async (dto: CommentDto) => {
-		const postResult = await postsRepository.getPostById(dto.postId)
+@injectable()
+export class CommentService {
+	constructor(
+		protected commentRepository: CommentRepository,
+		protected postsRepository: PostsRepository
+	) {}
+
+	async addCommentByPostId(dto: CommentDto) {
+		const postResult = await this.postsRepository.getPostById(dto.postId)
 
 		if (!postResult) {
 			return {
@@ -21,13 +27,14 @@ export const commentService = {
 			createdAt: new Date(),
 		}
 
-		return await commentRepository.addOne(newCommentBody)
-	},
-	deleteCommentById: async (id: string) => {
-		return await commentRepository.deleteOne(id)
-	},
+		return await this.commentRepository.addOne(newCommentBody)
+	}
 
-	updateCommentById: async (dto: UpdateCommentDto) => {
-		return await commentRepository.updateOne(dto.id, dto.content)
-	},
+	async deleteCommentById(id: string) {
+		return await this.commentRepository.deleteOne(id)
+	}
+
+	async updateCommentById(dto: UpdateCommentDto) {
+		return await this.commentRepository.updateOne(dto.id, dto.content)
+	}
 }

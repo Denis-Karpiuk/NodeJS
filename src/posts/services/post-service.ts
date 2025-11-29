@@ -1,18 +1,25 @@
-import { commentService } from '../../comments/services/comment.service'
+import { CommentService } from '../../comments/services/comment.service'
 import { CommentDto } from '../../comments/types/comment.dto'
 import { newPostBodyType } from '../dto/input.post.dto'
-import { postsRepository } from '../repository/posts.repository'
+import { PostsRepository } from '../repository/posts.repository'
+import { injectable } from 'inversify'
 
-export const postsService = {
+@injectable()
+export class PostsService {
+	constructor(
+		protected commentService: CommentService,
+		protected postsRepository: PostsRepository
+	) {}
+
 	async findMany(params: any): Promise<any> {
-		return postsRepository.findMany(params)
-	},
+		return this.postsRepository.findMany(params)
+	}
 
 	async createPost(body: newPostBodyType): Promise<any> {
-		return postsRepository.addPost(body)
-	},
+		return this.postsRepository.addPost(body)
+	}
 
 	async createPostComment(dto: CommentDto): Promise<any> {
-		return await commentService.addCommentByPostId(dto)
-	},
+		return await this.commentService.addCommentByPostId(dto)
+	}
 }

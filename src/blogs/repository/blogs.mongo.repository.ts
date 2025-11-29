@@ -6,6 +6,7 @@ import {
 	BlogsSearchResultType,
 } from '../service/blog.service'
 import { SortDirection } from '../../core/types/sort-direction'
+import { injectable } from 'inversify'
 
 export type BlogType = {
 	id: string
@@ -16,7 +17,8 @@ export type BlogType = {
 	isMembership: boolean
 }
 
-export const blogsRepository = {
+@injectable()
+export class BlogsRepository {
 	async findMany({
 		pageNumber,
 		pageSize,
@@ -46,7 +48,7 @@ export const blogsRepository = {
 			totalCount,
 			items: blogs.map(mapBlogToResponse),
 		}
-	},
+	}
 
 	async getBlogById(id: string) {
 		if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -60,7 +62,7 @@ export const blogsRepository = {
 		}
 
 		return mapBlogToResponse(blog)
-	},
+	}
 
 	async addBlog({ description, name, websiteUrl }: newBlogBodyType) {
 		const newBlog = new BlogsModel({
@@ -80,7 +82,7 @@ export const blogsRepository = {
 			createdAt: savedBlog.createdAt,
 			isMembership: savedBlog.isMembership,
 		}
-	},
+	}
 
 	async updateBlog({
 		description,
@@ -99,7 +101,7 @@ export const blogsRepository = {
 		)
 
 		return updatedBlog
-	},
+	}
 
 	async deleteBlogById(id: string) {
 		if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -108,7 +110,7 @@ export const blogsRepository = {
 		const deletedBlog = await BlogsModel.findByIdAndDelete(id)
 
 		return deletedBlog
-	},
+	}
 }
 
 export function mapBlogToResponse(blog: any): BlogType {

@@ -1,16 +1,14 @@
-import { Request, Response, Router } from 'express'
+import { Router } from 'express'
 import { adminGuardMiddleware } from '../../core/middlewares/adminGuardMiddleware.middleware'
-import { idParamsValidator } from '../../core/middlewares/requiredId.middleWare'
-import { validation } from '../../core/middlewares/validatation.middleware'
-import { HttpStatus } from '../../core/types/http-statuses'
-import { blogBodyValidator } from '../blogBodyValidation'
-import { blogsRepository } from '../repository/blogs.mongo.repository'
 import { paginationAndSortingValidation } from '../../core/middlewares/query-pagination-sorting.validatiion-middleware'
-import { getBlogsListHandler } from './handlers/get-blogs-list-handler'
+import { idParamsValidator } from '../../core/middlewares/requiredId.middleWare'
 import { searchTermValidation } from '../../core/middlewares/search-term-validation'
-import { addPostsByBlogId } from './handlers/add-posts-by-blogId'
+import { validation } from '../../core/middlewares/validatation.middleware'
+import { blogBodyValidator } from '../blogBodyValidation'
+
+import { iocContainer } from '../../core/composition.root'
 import { postByByBlogBodyValidator } from '../../posts/validationPostByBlogBody'
-import { getPostsByBlogIdHandler } from './handlers/get-blog-posts-by-id'
+import { BlogsController } from '../controller/blogs.controller'
 
 const blogsSortFields = {
 	_id: '_id',
@@ -26,35 +24,25 @@ export const postsSortFields = {
 	blogId: 'blogId',
 }
 
+const blogsController = iocContainer.get<BlogsController>(BlogsController)
+
 export const blogsRouter = Router({})
 	.get(
 		'',
 		searchTermValidation('searchNameTerm'),
 		paginationAndSortingValidation(blogsSortFields),
 		validation,
-		getBlogsListHandler
+		blogsController.getBlogsList
 	)
 
-	.get('/:id', async (req, res) => {
-		const blog = await blogsRepository.getBlogById(req.params.id)
-
-		if (!blog) {
-			res.status(HttpStatus.NotFound).send('Blog not found')
-		}
-
-		res.status(HttpStatus.Success).send(blog)
-	})
+	.get('/:id', blogsController.getBlogById)
 
 	.post(
 		'',
 		adminGuardMiddleware,
 		blogBodyValidator,
 		validation,
-		async (req: Request, res: Response) => {
-			const result = await blogsRepository.addBlog(req.body)
-
-			res.status(HttpStatus.Created).send(result)
-		}
+		blogsController.addBlog
 	)
 
 	.put(
@@ -63,38 +51,7 @@ export const blogsRouter = Router({})
 		idParamsValidator,
 		blogBodyValidator,
 		validation,
-		async (req: Request, res: Response) => {
-			const updateResult = await blogsRepository.updateBlog({
-				...req.body,
-				id: req.params.id,
-			})
-
-			if (!updateResult) {
-				res.status(HttpStatus.NotFound).send('Blog not found')
-			}
-
-			res.status(HttpStatus.NoContent).send(
-				`Blog ${req.params.id} was updated successfully`
-			)
-		}
-	)
-
-	.delete(
-		'/:id',
-		adminGuardMiddleware,
-		idParamsValidator,
-		validation,
-		async (req: Request, res: Response) => {
-			const result = await blogsRepository.deleteBlogById(req.params.id)
-
-			if (!result) {
-				res.status(HttpStatus.NotFound).send('Blog not found')
-			}
-
-			res.status(HttpStatus.NoContent).send(
-				`Blog ${req.params.id} was deleted`
-			)
-		}
+		blogsController.updateBlogById
 	)
 
 	.get(
@@ -102,7 +59,7 @@ export const blogsRouter = Router({})
 		idParamsValidator,
 		paginationAndSortingValidation(postsSortFields),
 		validation,
-		getPostsByBlogIdHandler
+		blogsController.getPostsByBlogId
 	)
 
 	.post(
@@ -111,5 +68,13 @@ export const blogsRouter = Router({})
 		idParamsValidator,
 		postByByBlogBodyValidator,
 		validation,
-		addPostsByBlogId
+		blogsController.addPostsByBlogId
+	)
+
+	.delete(
+		'/:id',
+		adminGuardMiddleware,
+		idParamsValidator,
+		validation,
+		blogsController.deleteBlogById
 	)

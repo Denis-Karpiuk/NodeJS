@@ -1,9 +1,11 @@
+import { injectable } from 'inversify'
 import { Result } from '../../core/result/result.type'
 import { ResultStatus } from '../../core/result/resultStatus'
 import { CommentModel } from '../../models/comments.model'
 import { CommentDbType } from '../types/comment.db.type'
 
-export const commentRepository = {
+@injectable()
+export class CommentRepository {
 	async addOne(comment: CommentDbType): Promise<Result<string>> {
 		try {
 			const newComment = new CommentModel(comment)
@@ -22,7 +24,7 @@ export const commentRepository = {
 					error instanceof Error ? error.message : 'Unknown error',
 			}
 		}
-	},
+	}
 
 	async deleteOne(id: string): Promise<Result<string>> {
 		try {
@@ -57,7 +59,7 @@ export const commentRepository = {
 					error instanceof Error ? error.message : 'Unknown error',
 			}
 		}
-	},
+	}
 
 	async updateOne(id: string, content: string): Promise<Result<string>> {
 		try {
@@ -98,5 +100,5 @@ export const commentRepository = {
 					error instanceof Error ? error.message : 'Unknown error',
 			}
 		}
-	},
+	}
 }

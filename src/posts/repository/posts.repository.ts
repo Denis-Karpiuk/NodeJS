@@ -5,7 +5,10 @@ import { BlogsModel } from '../../models/blogs.model'
 import { SortDirection } from '../../core/types/sort-direction'
 import { skipItems } from '../../core/utils/skipItmes'
 
-export const postsRepository = {
+import { injectable } from 'inversify'
+
+@injectable()
+export class PostsRepository {
 	async findMany({
 		pageNumber,
 		pageSize,
@@ -38,7 +41,7 @@ export const postsRepository = {
 			totalCount,
 			items: posts.map(mapPostToResponse),
 		}
-	},
+	}
 
 	async getPostById(id: string) {
 		if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -48,7 +51,7 @@ export const postsRepository = {
 		const post = await PostsModel.findById(id)
 
 		return mapPostToResponse(post)
-	},
+	}
 
 	async addPost(body: newPostBodyType) {
 		const blog = await BlogsModel.findById(body.blogId).lean()
@@ -76,13 +79,13 @@ export const postsRepository = {
 			blogName: savedPost.blogName,
 			createdAt: savedPost.createdAt,
 		}
-	},
+	}
 
 	async updatePost({ id, ...body }: newPostBodyType & { id: string }) {
 		const updatedPost = PostsModel.findByIdAndUpdate(id, body)
 
 		return updatedPost
-	},
+	}
 
 	async deletePostById(id: string) {
 		const deletedPost = await PostsModel.findByIdAndDelete(id)
@@ -91,7 +94,7 @@ export const postsRepository = {
 		}
 
 		return true
-	},
+	}
 }
 
 // Вспомогательная функция для постов

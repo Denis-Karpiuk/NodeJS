@@ -1,24 +1,27 @@
-import { Router, Response, Request } from 'express'
+import { Request, Response, Router } from 'express'
 import { HttpStatus } from '../../core/types/http-statuses'
-import { postsRepository } from '../repository/posts.repository'
-import { adminGuardMiddleware } from '../../core/middlewares/adminGuardMiddleware.middleware'
-import { postBodyValidator } from '../validation'
-import { validation } from '../../core/middlewares/validatation.middleware'
-import { idParamsValidator } from '../../core/middlewares/requiredId.middleWare'
-import { getPostsListHandler } from './handlers/get-blogs-list-handler'
-import { paginationAndSortingValidation } from '../../core/middlewares/query-pagination-sorting.validatiion-middleware'
+import { PostsRepository } from './../repository/posts.repository'
 import { postsSortFields } from '../../blogs/router/blogs.router'
-import { addPostCommentHandler } from './handlers/add-post-comment-handler'
-import { authBearerMiddleware } from '../../core/middlewares/authBearerMiddleWare'
 import { commentBodyValidator } from '../../comments/commentBodyValidation'
-import { getPostCommentsHandler } from './handlers/get-post-comments'
+import { iocContainer } from '../../core/composition.root'
+import { adminGuardMiddleware } from '../../core/middlewares/adminGuardMiddleware.middleware'
+import { authBearerMiddleware } from '../../core/middlewares/authBearerMiddleWare'
+import { paginationAndSortingValidation } from '../../core/middlewares/query-pagination-sorting.validatiion-middleware'
+import { idParamsValidator } from '../../core/middlewares/requiredId.middleWare'
+import { validation } from '../../core/middlewares/validatation.middleware'
+import { PostController } from '../controller/post.controller'
+import { postBodyValidator } from '../validation'
+
+const postsController = iocContainer.get<PostController>(PostController)
+
+const postsRepository = iocContainer.get<PostsRepository>(PostsRepository)
 
 export const postsRouter = Router({})
 	.get(
 		'',
 		paginationAndSortingValidation(postsSortFields),
 		validation,
-		getPostsListHandler
+		postsController.getPostComments
 	)
 
 	.get('/:id', async (req, res) => {
@@ -91,7 +94,7 @@ export const postsRouter = Router({})
 		authBearerMiddleware,
 		commentBodyValidator,
 		validation,
-		addPostCommentHandler
+		postsController.addPostComment
 	)
 
 	.get(
@@ -101,5 +104,5 @@ export const postsRouter = Router({})
 			createdAt: 'createdAt',
 		}),
 		validation,
-		getPostCommentsHandler
+		postsController.getPostComments
 	)
