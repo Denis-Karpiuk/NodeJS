@@ -16,8 +16,8 @@ import { BlogsService } from '../blogs/service/blog.service'
 import { BlogsRepository } from '../blogs/repository/blogs.mongo.repository'
 import { BlogsController } from '../blogs/controller/blogs.controller'
 import { PostController } from '../posts/controller/post.controller'
-import { CommentsLikeService } from '../likes/servece/comments.like.service'
-import { CommentsLikesRepository } from '../likes/repository/comment.likes.repository'
+import { CommentsLikeService } from '../commentsLike/servece/comments.like.service'
+import { CommentsLikesRepository } from '../commentsLike/repository/comment.likes.repository'
 
 export const iocContainer: Container = new Container()
 

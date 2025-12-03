@@ -5,7 +5,7 @@ import { ResultStatus } from '../../core/result/resultStatus'
 import { resultCodeToHttpException } from '../../core/result/resultStatusToHttpCode'
 import { HttpStatus } from '../../core/types/http-statuses'
 import { CommentQwRepository } from '../repository/comment.query.repository'
-import { CommentsLikeService } from '../../likes/servece/comments.like.service'
+import { CommentsLikeService } from '../../commentsLike/servece/comments.like.service'
 
 @injectable()
 export class CommentsController {
@@ -23,9 +23,9 @@ export class CommentsController {
 	async getComment(req: Request, res: Response) {
 		debugger
 		const id = req.params.id
-		const user = req.context!.user
+		const user = req.context?.user
 
-		const result = await this.commentService.getCommentById(id, user!.id)
+		const result = await this.commentService.getCommentById(id, user?.id)
 
 		if (result.status !== ResultStatus.Success) {
 			return res

@@ -9,6 +9,7 @@ import { idParamsValidator } from '../../core/middlewares/requiredId.middleWare'
 import { validation } from '../../core/middlewares/validatation.middleware'
 import { PostController } from '../controller/post.controller'
 import { postBodyValidator } from '../validation'
+import { setUserInfoFromBearerTokenMiddleware } from '../../core/middlewares/setUserInfoMiddleWare'
 
 const postsController = iocContainer.get<PostController>(PostController)
 
@@ -58,6 +59,7 @@ export const postsRouter = Router({})
 	.get(
 		'/:id/comments',
 		idParamsValidator,
+		setUserInfoFromBearerTokenMiddleware,
 		paginationAndSortingValidation({
 			createdAt: 'createdAt',
 		}),

@@ -8,6 +8,7 @@ import { commentBodyValidator } from '../commentBodyValidation'
 import { CommentsController } from '../controller/comments.controller'
 import { ruleEditCommentValidation } from './rule-validation'
 import { likeCommentBodyValidator } from '../lkeCommentBody'
+import { setUserInfoFromBearerTokenMiddleware } from '../../core/middlewares/setUserInfoMiddleWare'
 
 const commentController =
 	iocContainer.get<CommentsController>(CommentsController)
@@ -17,7 +18,7 @@ export const commentsRouter = Router({})
 		'/:id',
 		idParamsValidator,
 		validation,
-		authBearerMiddleware,
+		setUserInfoFromBearerTokenMiddleware,
 		commentController.getComment
 	)
 

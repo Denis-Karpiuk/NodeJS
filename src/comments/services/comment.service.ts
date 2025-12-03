@@ -1,35 +1,26 @@
 import { injectable } from 'inversify'
 import { Result } from '../../core/result/result.type'
 import { ResultStatus } from '../../core/result/resultStatus'
-import { CommentsLikesRepository } from '../../likes/repository/comment.likes.repository'
-import { CommentLikeType } from '../../likes/types/types'
+import { CommentsLikesRepository } from '../../commentsLike/repository/comment.likes.repository'
+import { CommentsLikeService } from '../../commentsLike/servece/comments.like.service'
 import { PostsRepository } from '../../posts/repository/posts.repository'
-import {
-	CommentDto,
-	LikeStatusEnum,
-	UpdateCommentDto,
-} from '../types/comment.dto'
+import { CommentDto, UpdateCommentDto } from '../types/comment.dto'
 import { CommentViewType } from '../types/comment.view.type'
 import { mapCommentFromDbToView } from './../repository/comment.query.repository'
 import { CommentRepository } from './../repository/comment.repository'
-
-export type LikesInfoType = {
-	likesCount: number
-	dislikesCount: number
-	myStatus: LikeStatusEnum
-}
+import { LikeStatusEnum } from '../../commentsLike/types/types'
 
 @injectable()
 export class CommentService {
 	constructor(
 		protected commentRepository: CommentRepository,
 		protected postsRepository: PostsRepository,
-		protected commentsLikesRepository: CommentsLikesRepository
+		protected commentLikeService: CommentsLikeService
 	) {}
 
 	async getCommentById(
 		id: string,
-		userId: string
+		userId?: string
 	): Promise<Result<null | (CommentViewType & { likesInfo: any })>> {
 		const comment = await this.commentRepository.findById(id)
 
@@ -43,31 +34,20 @@ export class CommentService {
 
 		const commentResult = mapCommentFromDbToView(comment)
 
-		const likesCount =
-			await this.commentsLikesRepository.getCountLikesByFilter({
-				commentId: id,
-				likeStatus: LikeStatusEnum.Like,
-			})
+		const likeInfoResult = await this.commentLikeService.getLikesInfo(
+			id,
+			userId
+		)
 
-		const dislikesCount =
-			await this.commentsLikesRepository.getCountLikesByFilter({
-				commentId: id,
-				likeStatus: LikeStatusEnum.Dislike,
-			})
-
-		const userLike =
-			await this.commentsLikesRepository.findLikeByUserIdAndCommentId(
-				userId,
-				id
-			)
-
-		let likesInfo = {
-			likesCount,
-			dislikesCount,
-			myStatus: userLike?.likeStatus || LikeStatusEnum.None,
+		if (likeInfoResult.status === ResultStatus.NotFound) {
+			return {
+				status: ResultStatus.NotFound,
+				extensions: [{ field: 'id', message: 'Comment not found' }],
+				data: null,
+			}
 		}
 
-		const result = { ...commentResult, likesInfo }
+		const result = { ...commentResult, likesInfo: likeInfoResult.data }
 
 		return {
 			status: ResultStatus.Success,
@@ -91,7 +71,21 @@ export class CommentService {
 			createdAt: new Date(),
 		}
 
-		return await this.commentRepository.addOne(newCommentBody)
+		const createdCommentResult =
+			await this.commentRepository.addOne(newCommentBody)
+
+		if (
+			createdCommentResult.status === ResultStatus.Success &&
+			createdCommentResult.data
+		) {
+			await this.commentLikeService.addLikeToComment({
+				commentId: createdCommentResult.data,
+				userId: newCommentBody.commentatorInfo.userId,
+				likeStatus: LikeStatusEnum.None,
+			})
+		}
+
+		return createdCommentResult
 	}
 
 	async deleteCommentById(id: string) {

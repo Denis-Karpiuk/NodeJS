@@ -9,6 +9,7 @@ import { setDefaultSortAndPaginationIfNotExist } from '../../core/utils/set-defa
 import { PostsRepository } from '../repository/posts.repository'
 import { PostsService } from '../services/post-service'
 import { injectable } from 'inversify'
+import { CommentsLikeService } from '../../commentsLike/servece/comments.like.service'
 
 @injectable()
 export class PostController {
@@ -16,7 +17,8 @@ export class PostController {
 		protected postsService: PostsService,
 		protected commentService: CommentService,
 		protected commentQwRepository: CommentQwRepository,
-		protected postsRepository: PostsRepository
+		protected postsRepository: PostsRepository,
+		protected commentLikeService: CommentsLikeService
 	) {
 		this.addPostComment = this.addPostComment.bind(this)
 		this.getPostComments = this.getPostComments.bind(this)
@@ -49,7 +51,9 @@ export class PostController {
 				.send({ errorsMessages: result.extensions })
 		}
 
-		const comment = await this.commentQwRepository.findById(result.data!)
+		const commentId = result.data!
+
+		const comment = await this.commentQwRepository.findById(commentId)
 
 		if (comment.status !== ResultStatus.Success) {
 			return res
@@ -57,7 +61,23 @@ export class PostController {
 				.send({ errorsMessages: comment.extensions })
 		}
 
-		res.status(HttpStatus.Created).send(comment.data)
+		const commentLikeInfo = await this.commentLikeService.getLikesInfo(
+			commentId,
+			user.id
+		)
+
+		if (commentLikeInfo.status !== ResultStatus.Success) {
+			return res
+				.status(resultCodeToHttpException(commentLikeInfo.status))
+				.send({ errorsMessages: commentLikeInfo.extensions })
+		}
+
+		const addedPostResult = {
+			...comment.data,
+			likesInfo: commentLikeInfo.data!,
+		}
+
+		res.status(HttpStatus.Created).send(addedPostResult)
 	}
 
 	async getPostsList(req: Request, res: Response) {
@@ -111,7 +131,27 @@ export class PostController {
 				.send({ errorsMessages: comments.extensions })
 		}
 
-		res.status(HttpStatus.Success).send(comments.data)
+		const user = req.context?.user
+
+		// Собираем массив с лайками
+		const itemsWithLikes = await Promise.all(
+			comments.data?.items.map(async element => {
+				const commentLikeInfo =
+					await this.commentLikeService.getLikesInfo(
+						element.id,
+						user?.id
+					)
+				return {
+					...element,
+					likesInfo: commentLikeInfo.data,
+				}
+			}) ?? []
+		)
+
+		res.status(HttpStatus.Success).send({
+			...comments.data,
+			items: itemsWithLikes,
+		})
 	}
 
 	async addPost(req: Request, res: Response) {
