@@ -91,6 +91,7 @@ export class CommentsLikesRepository {
 			})
 				.skip(0)
 				.limit(size)
+				.sort({ createdAt: -1 })
 				.lean()
 		} catch (error) {
 			return null
