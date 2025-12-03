@@ -7,6 +7,7 @@ import { setDefaultSortAndPaginationIfNotExist } from '../../core/utils/set-defa
 import { BlogsService } from '../service/blog.service'
 import { injectable } from 'inversify'
 import { CommentsLikeService } from '../../likes/servece/comments.like.service'
+import { ResultStatus } from '../../core/result/resultStatus'
 
 @injectable()
 export class BlogsController {
@@ -80,7 +81,30 @@ export class BlogsController {
 			res.status(HttpStatus.NotFound).send('Blog not found')
 		}
 
-		res.status(HttpStatus.Success).send(posts)
+		const preparePostsItems = await Promise.all(
+			posts.items.map(async (post: any) => {
+				const likeInfoResult =
+					await this.commentLikeService.getPostsLikesInfo(
+						post.id,
+						req.context?.user?.id
+					)
+				if (likeInfoResult.status === ResultStatus.NotFound) {
+					return {
+						status: ResultStatus.NotFound,
+						extensions: [
+							{ field: 'id', message: 'Comment not found' },
+						],
+						data: null,
+					}
+				}
+				return { ...post, extendedLikesInfo: likeInfoResult.data }
+			})
+		)
+
+		res.status(HttpStatus.Success).send({
+			...posts,
+			items: preparePostsItems,
+		})
 	}
 
 	async getBlogsList(req: Request, res: Response) {

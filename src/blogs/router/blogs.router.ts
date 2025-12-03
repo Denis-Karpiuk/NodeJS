@@ -9,6 +9,7 @@ import { blogBodyValidator } from '../blogBodyValidation'
 import { iocContainer } from '../../core/composition.root'
 import { postByByBlogBodyValidator } from '../../posts/validationPostByBlogBody'
 import { BlogsController } from '../controller/blogs.controller'
+import { setUserInfoFromBearerTokenMiddleware } from '../../core/middlewares/setUserInfoMiddleWare'
 
 const blogsSortFields = {
 	_id: '_id',
@@ -57,6 +58,7 @@ export const blogsRouter = Router({})
 	.get(
 		'/:id/posts',
 		idParamsValidator,
+		setUserInfoFromBearerTokenMiddleware,
 		paginationAndSortingValidation(postsSortFields),
 		validation,
 		blogsController.getPostsByBlogId
