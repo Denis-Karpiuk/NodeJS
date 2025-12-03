@@ -9,7 +9,7 @@ import { setDefaultSortAndPaginationIfNotExist } from '../../core/utils/set-defa
 import { PostsRepository } from '../repository/posts.repository'
 import { PostsService } from '../services/post-service'
 import { injectable } from 'inversify'
-import { CommentsLikeService } from '../../commentsLike/servece/comments.like.service'
+import { CommentsLikeService } from '../../likes/servece/comments.like.service'
 
 @injectable()
 export class PostController {
@@ -26,6 +26,7 @@ export class PostController {
 		this.getPostById = this.getPostById.bind(this)
 		this.addPost = this.addPost.bind(this)
 		this.updatePostById = this.updatePostById.bind(this)
+		this.addLikeStatusToPost = this.addLikeStatusToPost.bind(this)
 	}
 	async addPostComment(req: Request, res: Response) {
 		const user = req.context!.user!
@@ -61,10 +62,11 @@ export class PostController {
 				.send({ errorsMessages: comment.extensions })
 		}
 
-		const commentLikeInfo = await this.commentLikeService.getLikesInfo(
-			commentId,
-			user.id
-		)
+		const commentLikeInfo =
+			await this.commentLikeService.getCommentsLikesInfo(
+				commentId,
+				user.id
+			)
 
 		if (commentLikeInfo.status !== ResultStatus.Success) {
 			return res
@@ -96,12 +98,30 @@ export class PostController {
 	}
 
 	async getPostById(req: Request, res: Response) {
-		const post = await this.postsRepository.getPostById(req.params.id)
+		const id = req.params.id
+		const user = req.context?.user
+
+		const post = await this.postsRepository.getPostById(id)
 		if (!post) {
 			res.status(HttpStatus.NotFound).send('Post not found')
 		}
 
-		res.status(HttpStatus.Success).send(post)
+		const likeInfoResult = await this.commentLikeService.getPostsLikesInfo(
+			req.params.id,
+			user?.id
+		)
+
+		if (likeInfoResult.status === ResultStatus.NotFound) {
+			return {
+				status: ResultStatus.NotFound,
+				extensions: [{ field: 'id', message: 'Comment not found' }],
+				data: null,
+			}
+		}
+
+		const result = { ...post, extendedLikesInfo: likeInfoResult.data }
+
+		res.status(HttpStatus.Success).send(result)
 	}
 
 	async getPostComments(req: Request, res: Response) {
@@ -137,7 +157,7 @@ export class PostController {
 		const itemsWithLikes = await Promise.all(
 			comments.data?.items.map(async element => {
 				const commentLikeInfo =
-					await this.commentLikeService.getLikesInfo(
+					await this.commentLikeService.getCommentsLikesInfo(
 						element.id,
 						user?.id
 					)
@@ -189,5 +209,24 @@ export class PostController {
 		res.status(HttpStatus.NoContent).send(
 			`Post ${req.params.id} was deleted`
 		)
+	}
+
+	async addLikeStatusToPost(req: Request, res: Response) {
+		const id = req.params.id
+		const body = req.body
+		const user = req.context!.user!
+
+		const result = await this.commentLikeService.addLikeToPost({
+			id,
+			...body,
+			userId: user.id,
+		})
+
+		if (result.status !== ResultStatus.Success) {
+			return res
+				.status(resultCodeToHttpException(result.status))
+				.send({ errorsMessages: result.extensions })
+		}
+		res.status(HttpStatus.NoContent).send(result.data)
 	}
 }

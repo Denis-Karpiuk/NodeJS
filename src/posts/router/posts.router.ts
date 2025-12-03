@@ -10,6 +10,7 @@ import { validation } from '../../core/middlewares/validatation.middleware'
 import { PostController } from '../controller/post.controller'
 import { postBodyValidator } from '../validation'
 import { setUserInfoFromBearerTokenMiddleware } from '../../core/middlewares/setUserInfoMiddleWare'
+import { likeCommentBodyValidator } from '../../comments/lkeCommentBody'
 
 const postsController = iocContainer.get<PostController>(PostController)
 
@@ -65,4 +66,12 @@ export const postsRouter = Router({})
 		}),
 		validation,
 		postsController.getPostComments
+	)
+
+	.put(
+		'/:id/like-status',
+		authBearerMiddleware,
+		likeCommentBodyValidator,
+		validation,
+		postsController.addLikeStatusToPost
 	)

@@ -1,14 +1,13 @@
 import { injectable } from 'inversify'
 import { Result } from '../../core/result/result.type'
 import { ResultStatus } from '../../core/result/resultStatus'
-import { CommentsLikesRepository } from '../../commentsLike/repository/comment.likes.repository'
-import { CommentsLikeService } from '../../commentsLike/servece/comments.like.service'
+import { CommentsLikeService } from '../../likes/servece/comments.like.service'
 import { PostsRepository } from '../../posts/repository/posts.repository'
 import { CommentDto, UpdateCommentDto } from '../types/comment.dto'
 import { CommentViewType } from '../types/comment.view.type'
 import { mapCommentFromDbToView } from './../repository/comment.query.repository'
 import { CommentRepository } from './../repository/comment.repository'
-import { LikeStatusEnum } from '../../commentsLike/types/types'
+import { LikeStatusEnum } from '../../likes/types/types'
 
 @injectable()
 export class CommentService {
@@ -34,10 +33,8 @@ export class CommentService {
 
 		const commentResult = mapCommentFromDbToView(comment)
 
-		const likeInfoResult = await this.commentLikeService.getLikesInfo(
-			id,
-			userId
-		)
+		const likeInfoResult =
+			await this.commentLikeService.getCommentsLikesInfo(id, userId)
 
 		if (likeInfoResult.status === ResultStatus.NotFound) {
 			return {
@@ -79,7 +76,7 @@ export class CommentService {
 			createdCommentResult.data
 		) {
 			await this.commentLikeService.addLikeToComment({
-				commentId: createdCommentResult.data,
+				id: createdCommentResult.data,
 				userId: newCommentBody.commentatorInfo.userId,
 				likeStatus: LikeStatusEnum.None,
 			})
