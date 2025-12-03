@@ -6,13 +6,15 @@ import { matchedData } from 'express-validator'
 import { setDefaultSortAndPaginationIfNotExist } from '../../core/utils/set-default-sort-and-pagination'
 import { BlogsService } from '../service/blog.service'
 import { injectable } from 'inversify'
+import { CommentsLikeService } from '../../likes/servece/comments.like.service'
 
 @injectable()
 export class BlogsController {
 	constructor(
 		protected blogsRepository: BlogsRepository,
 		protected postsService: PostsService,
-		protected blogsService: BlogsService
+		protected blogsService: BlogsService,
+		protected commentLikeService: CommentsLikeService
 	) {
 		this.addPostsByBlogId = this.addPostsByBlogId.bind(this)
 		this.getBlogsList = this.getBlogsList.bind(this)
@@ -42,7 +44,14 @@ export class BlogsController {
 			res.status(HttpStatus.NotFound).send('Blog not found')
 		}
 
-		res.status(HttpStatus.Created).send(result)
+		const postLikesInfo = await this.commentLikeService.getPostsLikesInfo(
+			result!.id
+		)
+
+		res.status(HttpStatus.Created).send({
+			...result,
+			extendedLikesInfo: postLikesInfo.data,
+		})
 	}
 
 	async getPostsByBlogId(req: Request, res: Response) {
