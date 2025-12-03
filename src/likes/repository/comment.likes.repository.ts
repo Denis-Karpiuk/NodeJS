@@ -88,10 +88,11 @@ export class CommentsLikesRepository {
 		try {
 			return await PostLikesModel.find({
 				id: commentId,
+				likeStatus: 'Like',
 			})
 				.skip(0)
 				.limit(size)
-				.sort({ createdAt: -1 })
+				.sort({ updatedAt: -1 })
 				.lean()
 		} catch (error) {
 			return null
