@@ -17,12 +17,17 @@ const postsController = iocContainer.get<PostController>(PostController)
 export const postsRouter = Router({})
 	.get(
 		'',
+		setUserInfoFromBearerTokenMiddleware,
 		paginationAndSortingValidation(postsSortFields),
 		validation,
 		postsController.getPostsList
 	)
 
-	.get('/:id', postsController.getPostById)
+	.get(
+		'/:id',
+		setUserInfoFromBearerTokenMiddleware,
+		postsController.getPostById
+	)
 
 	.post(
 		'',
