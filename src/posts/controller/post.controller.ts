@@ -94,7 +94,34 @@ export class PostController {
 			...inputQuery,
 		})
 
-		res.status(HttpStatus.Success).send(posts)
+		if (!posts) {
+			res.status(HttpStatus.NotFound).send('Posts not found')
+		}
+
+		const preparePostsItems = await Promise.all(
+			posts.items.map(async (post: any) => {
+				const likeInfoResult =
+					await this.commentLikeService.getPostsLikesInfo(
+						post.id,
+						req.context?.user?.id
+					)
+				if (likeInfoResult.status === ResultStatus.NotFound) {
+					return {
+						status: ResultStatus.NotFound,
+						extensions: [
+							{ field: 'id', message: 'Comment not found' },
+						],
+						data: null,
+					}
+				}
+				return { ...post, extendedLikesInfo: likeInfoResult.data }
+			})
+		)
+
+		res.status(HttpStatus.Success).send({
+			...posts,
+			items: preparePostsItems,
+		})
 	}
 
 	async getPostById(req: Request, res: Response) {
@@ -181,7 +208,15 @@ export class PostController {
 			res.status(HttpStatus.NotFound).send('Blog not found')
 		}
 
-		res.status(HttpStatus.Created).send(result)
+		const postLikesInfo = await this.commentLikeService.getPostsLikesInfo(
+			result!.id,
+			req.context?.user?.id
+		)
+
+		res.status(HttpStatus.Created).send({
+			...result,
+			extendedLikesInfo: postLikesInfo.data,
+		})
 	}
 
 	async updatePostById(req: Request, res: Response) {
